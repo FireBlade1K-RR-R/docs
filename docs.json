@@ -93,5 +93,17 @@
         ]
       }
     ]
+  },
+  "markdown": {
+    "schema": true
+  },
+  "api": {
+    "params": {
+      "expanded": "all"
+    },
+    "examples": {
+      "defaults": "all",
+      "autogenerate": true
+    }
   }
 }
