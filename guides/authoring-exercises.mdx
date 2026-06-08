@@ -1,0 +1,96 @@
+---
+title: "Authoring Exercises: Build Realistic SOC Scenarios"
+sidebarTitle: "Author Exercises"
+description: "Create exercises with log archives, ordered steps, expected artifacts, and MITRE tags. Requires the manage_exercises capability to author."
+---
+
+Creating a ThreatLab exercise takes you from filling in scenario metadata all the way through uploading log archives, defining ordered investigation steps, and publishing the exercise for analysts to start. This guide walks through each stage of that process so you can build polished, realistic training scenarios from scratch.
+
+<Info>
+  You need the **manage\_exercises** capability to create and edit exercises. If you do not see **Exercises > Create exercise** in the sidebar, contact your administrator to have that capability granted to your role.
+</Info>
+
+## Creating an exercise
+
+<Steps>
+  <Step title="Open the creation form">
+    Navigate to **Exercises > Create exercise** in the left sidebar. The creation form opens with all required fields shown at the top.
+  </Step>
+  <Step title="Fill in exercise metadata">
+    Complete the following fields before moving on to archives:
+
+    - **Title** — a clear, descriptive name for the scenario
+    - **Description** — what the analyst will investigate and learn
+    - **Difficulty** — choose **Easy**, **Medium**, **Hard**, or **Expert**
+    - **Estimated duration** — enter a time in minutes to help analysts plan their session
+    - **Points** — the score awarded on completion
+    - **MITRE ATT&CK tags** — add one or more technique IDs (e.g. `T1059`, `T1059.001`) to signal which adversary techniques appear in the logs
+  </Step>
+  <Step title="Add archive sections">
+    Each archive section holds the log data analysts will investigate. ThreatLab supports four source types:
+
+    <Tabs>
+      <Tab title="File upload">
+        Upload a `.zip`, `.tar.gz`, or `.tgz` archive containing your log files. The maximum upload size is **256 MB** per archive.
+      </Tab>
+      <Tab title="Pasted text">
+        Paste raw log lines directly into the editor. Name each file with a `.txt` or `.log` extension. ThreatLab automatically packs the pasted content into a ZIP and routes it through the same validation pipeline as file uploads.
+      </Tab>
+      <Tab title="Direct file">
+        Attach a `.txt` or `.log` file directly without archiving it first. ThreatLab wraps it into a ZIP automatically.
+      </Tab>
+      <Tab title="Live TCP intake">
+        If a SyslogCanon sidecar is configured for your deployment, select this option to ingest logs over a live TCP connection.
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Convert to LEEF (optional)">
+    If your raw logs are not already in LEEF format, click **Convert to LEEF** on an archive section. This option is only available when a SyslogCanon sidecar is configured. Converting produces a LEEF-formatted archive suitable for Splunk, QRadar, and syslog destinations.
+  </Step>
+  <Step title="Define investigation steps">
+    Add one or more ordered steps that guide analysts through the investigation. Each step requires:
+
+    - **Title** — a short label for this stage of the investigation
+    - **Investigation instructions** — the prompt shown to the analyst
+    - **Expected artifact value(s)** — the answer(s) ThreatLab checks submissions against
+
+    Steps appear in order on the analyst's exercise workspace. You can drag to reorder them before publishing.
+  </Step>
+  <Step title="Publish the exercise">
+    When your metadata, archives, and steps are complete, toggle the exercise to **Active**. Active exercises are visible in the exercise catalogue and can be started by analysts immediately. Leave the exercise inactive while it is still a draft.
+  </Step>
+</Steps>
+
+## Archive validation rules
+
+ThreatLab validates every archive before storing it. Your archives must satisfy all of the following constraints:
+
+- Accepted container formats: `.zip`, `.tar.gz`, `.tgz`
+- Files inside the archive must have a `.txt` or `.log` extension
+- Nested archives are not permitted
+- Path traversal and absolute paths are rejected
+- Per-file uncompressed size limit: **10 MB**
+- Total uncompressed size limit: **1 GB**
+- Maximum number of entries per archive: **10,000**
+- Maximum compression ratio: **200×** (zip-bomb defence)
+
+## Artifact matching
+
+When an analyst submits a step answer, ThreatLab trims leading and trailing whitespace from both the submission and the expected value, then compares them **case-insensitively**. The submission must be an exact match after that normalisation — partial matches are not accepted.
+
+## Multi-format archives
+
+You can attach both a LEEF archive and an ECS archive to the same exercise section. When an analyst starts the exercise, ThreatLab inspects the destination SIEM's **payload format** setting and ships the matching archive:
+
+- `leef` — used for Splunk, QRadar, and syslog TCP destinations
+- `ecs` — used for Elasticsearch destinations configured with the ECS path
+
+If archives exist for only part of a requested payload format set, ThreatLab refuses to ship a partial section and returns an error. Make sure every section has a complete archive set for each payload format you intend to support.
+
+<Warning>
+  Editing a published exercise takes effect immediately. Consider setting the exercise to **Inactive** before making major structural changes — such as replacing archives or reordering steps — so analysts do not encounter a partially updated scenario mid-session.
+</Warning>
+
+<Tip>
+  MITRE tags help analysts understand which adversary techniques to look for before they open their SIEM. Use specific sub-technique IDs like `T1059.001` where possible — they are more actionable than top-level technique IDs alone.
+</Tip>

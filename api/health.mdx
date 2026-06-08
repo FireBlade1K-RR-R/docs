@@ -1,0 +1,44 @@
+---
+title: "GET /api/health — ThreatLab Health Check Endpoint"
+sidebarTitle: "GET /health"
+description: "GET /api/health returns HTTP 200 with ok: true when the ThreatLab server is running. No authentication required. Use for load balancer probes."
+---
+
+The `/api/health` endpoint is an unauthenticated liveness check. It returns `200 OK` with a JSON body whenever the ThreatLab server process is running. Use it for load balancer health probes, Docker and Kubernetes readiness checks, or any uptime monitoring service that needs a reliable ping target.
+
+**Method:** `GET`  
+**Path:** `/api/health`  
+**Auth:** None required
+
+---
+
+## Response Body
+
+```json
+{ "ok": true }
+```
+
+The response body never changes while the server is running. A non-`200` status or a network error indicates the server is down or unreachable.
+
+---
+
+## Example
+
+```bash
+curl https://threatlab.your-org.com/api/health
+# {"ok":true}
+```
+
+---
+
+## Typical Use Cases
+
+- **Load balancer health probe** — configure your load balancer (AWS ALB, nginx, HAProxy) to poll `/api/health` and remove the instance from rotation on failure.
+- **Docker / Kubernetes readiness probe** — set this endpoint as your `readinessProbe` or `HEALTHCHECK` target so the orchestrator knows when the container is ready to serve traffic.
+- **Uptime monitoring services** — add `https://threatlab.your-org.com/api/health` to Uptime Robot, Better Uptime, or any HTTP monitor that checks for a `200` response.
+
+---
+
+<Note>
+  This endpoint confirms the Next.js server process is running and can accept requests. It does **not** check database connectivity, SIEM availability, or Icinga reachability. Use the [Platform Status SSE stream](/api/platform-status-sse) for deeper infrastructure health visibility.
+</Note>

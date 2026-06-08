@@ -1,0 +1,115 @@
+{
+  "projectType": "saas",
+  "projectName": "ThreatLab",
+  "projectDescription": "A SOC training platform that lets security teams author investigation exercises, run them against live SIEMs, track analyst progress, and monitor platform health.",
+  "theme": "aspen",
+  "primaryColor": "#bf3b41",
+  "lightColor": "#f7ecd7",
+  "darkColor": "#090908",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "configuration"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/exercises",
+              "concepts/learning-paths",
+              "concepts/roles-capabilities",
+              "concepts/siem-integrations"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/authoring-exercises",
+              "guides/running-exercises",
+              "guides/noise-logs",
+              "guides/direct-messages",
+              "guides/platform-status"
+            ]
+          },
+          {
+            "group": "Administration",
+            "pages": [
+              "admin/user-management",
+              "admin/roles",
+              "admin/siem-resources",
+              "admin/bootstrapping"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/common-issues",
+              "troubleshooting/siem-errors",
+              "troubleshooting/auth-issues"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api/overview",
+              "api/authentication"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api/sessions-start",
+              "api/sessions-wipe",
+              "api/noise-run",
+              "api/platform-status-sse",
+              "api/health"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Exercise authoring with ordered investigation steps, MITRE tags, difficulty, and multi-section LEEF/ECS archives",
+    "Multi-format archive ingestion: ZIP/tar.gz upload, pasted text, direct .txt/.log files, or live TCP intake via SyslogCanon",
+    "Analyst workspace with step-by-step artifact submission, investigation notebooks, and completion tracking",
+    "Learning paths with sequential unlock logic, progress tracking, and curated/onboarding flags",
+    "Noise log dispatcher that ships scheduled LEEF events to Splunk, QRadar, or Elasticsearch via pg_cron",
+    "SIEM integrations: Splunk HEC, syslog TCP (RFC3164/RFC5424), and Elastic bulk indexing with ECS document support",
+    "Capability-based role system with admin/analyst system roles and custom permission roles",
+    "End-to-end encrypted direct messages (AES-256-GCM) with real-time delivery via Supabase Realtime",
+    "Live presence tracking showing who is online and what they are working on",
+    "Leaderboard with ranked points and exercise completions",
+    "Icinga 2 platform health monitoring with real-time SSE bridge and per-service issue drill-down",
+    "Email/password and Microsoft Entra ID (OIDC/OAuth) sign-in"
+  ],
+  "publicApiSurface": [
+    "POST /api/sessions/start — ship a signed archive to a SIEM destination",
+    "DELETE /api/sessions — wipe one or more SIEM indexes and re-fire noise jobs",
+    "POST /api/noise/run — execute a scheduled or manual noise job dispatch",
+    "GET /api/platform-status/events — SSE stream of Icinga platform health events",
+    "GET /api/health — unauthenticated health check returning { ok: true }",
+    "requireCapability(capability) — server-side capability gate for server actions",
+    "getUserRoles(userId) — fetch all roles assigned to a user",
+    "getUserCapabilities(userId) — compute the union capability set for a user",
+    "deriveProgress(items) — compute learning-path completion percentage and next unlocked item",
+    "computeStreak(completedAts, now) — calculate consecutive-day completion streak",
+    "buildRecentActivity(completions, sessions) — merge and deduplicate activity feed",
+    "pickQuickStart(activeExercises, completions, sessions) — suggest up to 4 unstarted exercises",
+    "validateArchive(file) — streaming archive validation with zip-bomb defense",
+    "detectFormat(archiveEntries) — classify LEEF vs raw from first 200 log lines",
+    "buildZip(pastedFiles) — pack pasted text files into an in-memory ZIP"
+  ]
+}

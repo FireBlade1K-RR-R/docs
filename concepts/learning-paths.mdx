@@ -1,0 +1,72 @@
+---
+title: "Learning Paths: Guided Exercise Sequences in ThreatLab"
+sidebarTitle: "Learning Paths"
+description: "Learning paths sequence exercises into guided curricula with automatic unlock logic so analysts progress through scenarios in a deliberate order."
+---
+
+Learning paths group exercises into structured, ordered curricula so you build skills progressively rather than picking scenarios at random. Each exercise in a path unlocks only after you finish the one before it, ensuring you encounter foundational techniques before tackling more complex scenarios. Administrators and instructors compose paths from the active exercise catalog and can mark them as curated or onboarding to surface them in the right context.
+
+## Unlock Logic
+
+ThreatLab uses a position-based unlock model so you always know exactly what to work on next:
+
+<Steps>
+  <Step title="Position 0 is always unlocked">
+    The first exercise in any path is immediately available when you join the path. No prior completion is required.
+  </Step>
+  <Step title="Each subsequent exercise unlocks when the previous one is completed">
+    Once you submit all required artifacts for an exercise, the next position unlocks automatically.
+  </Step>
+  <Step title="Inactive exercises are skipped automatically">
+    If an exercise is retired mid-path, ThreatLab treats it as completed for unlock purposes. You are never blocked by an exercise you cannot access.
+  </Step>
+</Steps>
+
+## Progress Model
+
+ThreatLab calculates your progress through a path using three counters and a percentage:
+
+| Metric | Definition |
+|---|---|
+| `completedCount` | Number of exercises you have fully completed. |
+| `activeCount` | Number of exercises currently published and visible. |
+| `totalCount` | Total exercises in the path, including retired ones. |
+| `percent` | `completedCount ÷ activeCount × 100`, capped at 100. Retired exercises do not penalise your score. |
+| `complete` | `true` when every active exercise in the path is completed. |
+| `nextUnlockedIndex` | The position of the first incomplete active exercise you should work on next. Returns `-1` when the path is fully complete. |
+
+Progress is based on **active exercises only**, so retiring a scenario you have not yet attempted does not leave your percentage stuck below 100%.
+
+## Curated and Onboarding Flags
+
+Paths can be promoted with two special flags to control how they surface across the platform:
+
+<CardGroup cols={2}>
+  <Card title="Curated" icon="star">
+    Marks the path as editorially featured. Curated paths appear prominently on the ThreatLab dashboard so analysts can find recommended content at a glance.
+  </Card>
+  <Card title="Onboarding" icon="user-plus">
+    Flags the path as introductory material. Onboarding paths are suggested automatically to newly registered users to give them a structured starting point.
+  </Card>
+</CardGroup>
+
+<Info>
+  Toggling either flag requires the **Curate learning paths** (`curate_paths`) capability. Standard analysts cannot promote or demote paths.
+</Info>
+
+## Validation Rules
+
+When creating or updating a learning path, ThreatLab enforces the following constraints:
+
+| Field | Rule |
+|---|---|
+| **Title** | Required. Maximum 120 characters. |
+| **Description** | Required. Maximum 2,000 characters. |
+| **Exercises** | Between 1 and 50 exercise UUIDs. No duplicates allowed. |
+| **Published paths** | Must contain at least 1 exercise before they can be made active. |
+
+Attempting to save a path that violates any of these rules returns a validation error listing each field that needs attention.
+
+<Tip>
+  Ask your instructor which learning path to start with. Curated paths appear prominently on the dashboard so you can find recommended content the moment you log in.
+</Tip>

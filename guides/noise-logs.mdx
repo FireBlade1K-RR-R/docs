@@ -1,0 +1,95 @@
+---
+title: "Noise Log Jobs: Populate Your SIEM With Baseline Traffic"
+sidebarTitle: "Noise Logs"
+description: "Schedule recurring background LEEF log dispatches to Splunk, QRadar, or Elasticsearch so your SIEM always contains realistic baseline traffic."
+---
+
+Noise log jobs ship LEEF events to your SIEMs on a recurring schedule, keeping your platform populated with realistic background traffic so that exercise investigations feel authentic. Without baseline noise, a SIEM used only for training exercises contains only exercise data, which makes it trivial for analysts to isolate events — noise jobs solve that problem by continuously replenishing the environment.
+
+## Prerequisites
+
+Before creating your first noise job, confirm the following:
+
+<CardGroup cols={2}>
+  <Card title="manage_noise_logs capability" icon="shield-check">
+    Your role must include the **manage\_noise\_logs** capability. Contact your administrator if you do not see the Noise Jobs section.
+  </Card>
+  <Card title="SIEM destination configured" icon="server">
+    At least one SIEM destination must be configured under **Admin > Resources** before you can select a target for your job.
+  </Card>
+</CardGroup>
+
+## Creating a noise job
+
+<Steps>
+  <Step title="Open the Noise Jobs panel">
+    Navigate to **Admin > Resources > Noise Jobs** and click **New Job**.
+  </Step>
+  <Step title="Enter job metadata">
+    Give the job a **name** (up to 80 characters) and an optional **description** (up to 500 characters). Use a name that identifies the traffic type and destination — for example, `Windows endpoint baseline – Splunk`.
+  </Step>
+  <Step title="Upload log archives">
+    Upload between **1 and 10** log archives in `.zip`, `.tar.gz`, or `.tgz` format. The archives must contain `.txt` or `.log` files. ThreatLab applies the same per-file and total size limits as exercise archives.
+  </Step>
+  <Step title="Select SIEM targets">
+    Choose between **1 and 20** SIEM destinations from the list of configured targets. Each selected SIEM receives an independent shipment — a failure on one target does not block delivery to the others.
+  </Step>
+  <Step title="Set the schedule">
+    Choose a schedule type and configure it:
+
+    <Tabs>
+      <Tab title="Interval">
+        Set how often the job fires in seconds. The valid range is **60 to 86,400 seconds** (1 minute to 24 hours). Optionally add **jitter** — up to 600 seconds, or up to the interval value, whichever is smaller — to randomise the exact fire time and avoid thundering-herd effects.
+      </Tab>
+      <Tab title="Cron">
+        Enter a standard **5-field cron expression** to control the exact schedule. For example, `0 * * * *` fires at the top of every hour. Jitter (up to 600 seconds) is also available for cron schedules.
+      </Tab>
+    </Tabs>
+  </Step>
+  <Step title="Enable and save">
+    Toggle the job to **Enabled** and click **Save**. ThreatLab computes the first `next_run_at` value immediately. The job will fire at the next scheduled time without any further action required.
+  </Step>
+</Steps>
+
+## How execution works
+
+When the scheduler fires, the following sequence runs automatically:
+
+1. The dispatcher posts to `/api/noise/run` with the job configuration.
+2. All archives are downloaded from storage **in parallel**.
+3. LEEF timestamps are **rebased** so the latest event in the archive lands at now + 2 hours — keeping your SIEM timeline current.
+4. Events are shipped to each target SIEM **independently**. A failure on one SIEM does not abort delivery to others.
+5. Per-execution, per-SIEM results are recorded in the run history.
+6. The job's `next_run_at` value is updated for the following execution.
+
+## Wipe and re-fire
+
+When an administrator wipes a SIEM session (`DELETE /api/sessions`), any noise jobs with **Propagate on wipe** enabled automatically re-fire for that SIEM. This ensures your training environment is repopulated with baseline traffic immediately after a wipe, so analysts always land in a realistic SIEM state at the start of a new training cycle.
+
+## Viewing run history
+
+To review past executions, go to **Admin > Resources > Noise Jobs**, click the job name, and open the **Recent Runs** tab. Each run shows the execution timestamp, per-SIEM status, event count dispatched, and any error messages. Use this view to diagnose delivery failures or confirm that a manual trigger succeeded.
+
+## Validation limits
+
+<Accordion title="Name and description limits">
+  - **Name**: required, maximum **80 characters**
+  - **Description**: optional, maximum **500 characters**
+</Accordion>
+
+<Accordion title="Archive limits">
+  - Minimum **1** archive per job
+  - Maximum **10** archives per job
+  - Accepted formats: `.zip`, `.tar.gz`, `.tgz`
+  - Files inside must be `.txt` or `.log`
+</Accordion>
+
+<Accordion title="Target and schedule limits">
+  - Minimum **1** SIEM target, maximum **20** SIEM targets
+  - Interval range: **60 – 86,400 seconds**
+  - Jitter: maximum **600 seconds**, and never more than the configured interval
+</Accordion>
+
+<Note>
+  Noise jobs dispatch in **LEEF format only**. If you have Elasticsearch destinations configured with the ECS payload format, noise jobs will not populate them. Use exercise start to ship ECS-format data to those destinations.
+</Note>

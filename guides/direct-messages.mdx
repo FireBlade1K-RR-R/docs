@@ -1,0 +1,52 @@
+---
+title: "Direct Messages: Encrypted Analyst Team Collaboration"
+sidebarTitle: "Direct Messages"
+description: "Send end-to-end AES-256-GCM encrypted direct messages to teammates in ThreatLab with real-time delivery and sidebar unread badge notifications."
+---
+
+ThreatLab includes one-to-one direct messaging so analysts and instructors can coordinate without leaving the platform. Every message is encrypted with AES-256-GCM before it is stored, delivered in real time to connected recipients, and protected by row-level security policies that prevent other users — including administrators — from reading your conversations.
+
+## Encryption and privacy
+
+<Info>
+  Messages are encrypted with **AES-256-GCM**. Only the sender and recipient can decrypt message content. Administrators cannot read your direct messages, even when reviewing the database. Keep this in mind when using DMs to share sensitive investigation findings or exercise hints.
+</Info>
+
+## Sending a message
+
+<Steps>
+  <Step title="Open your messages">
+    Click **Messages** in the left sidebar. The messages panel opens showing your existing conversations sorted by most recent activity.
+  </Step>
+  <Step title="Start or select a conversation">
+    Select an existing conversation from the list, or search for a teammate by name to open a new one. ThreatLab creates the conversation the first time you send a message to that person.
+  </Step>
+  <Step title="Compose and send">
+    Type your message in the input field at the bottom of the conversation. Press **Enter** or click **Send** to dispatch it.
+  </Step>
+  <Step title="Delivery and notification">
+    The message is delivered in real time if the recipient is currently online — their view updates immediately. If they are offline, an unread badge appears on the **Messages** icon in their sidebar the next time they visit the platform.
+  </Step>
+</Steps>
+
+## Reading messages
+
+Conversations are sorted with the most recently active thread at the top. Click any conversation to open it. Messages are marked as read automatically when you open the conversation — the unread badge clears as soon as you view the thread.
+
+## Message immutability
+
+<Warning>
+  Messages **cannot be edited or deleted** after they are sent. There are no update or delete policies on the messages table. Think carefully before sending sensitive, time-critical, or confidential information — you will not be able to retract it.
+</Warning>
+
+## Checking who is online
+
+Before sending a message, check the **Online People** panel in the sidebar to see which teammates are currently active on the platform. Sending to someone who is online means they will receive your message in real time without needing to wait for a notification.
+
+<Note>
+  Your administrator cannot read your direct message content. Messages are end-to-end encrypted and only decryptable by the sender and recipient.
+</Note>
+
+<Tip>
+  Use direct messages to ask for hints on a tricky exercise step, give feedback to an exercise author, or coordinate with your team during live instructor-led training events — all without switching to an external chat tool.
+</Tip>

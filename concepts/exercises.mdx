@@ -1,0 +1,104 @@
+---
+title: "ThreatLab Exercises: SOC Training Scenarios Explained"
+sidebarTitle: "Exercises"
+description: "Exercises are ThreatLab's core training unit — realistic SOC scenarios with ordered investigation steps, log archives, and expected artifacts to submit."
+---
+
+Exercises are ThreatLab's fundamental training unit. Each exercise pairs a real log archive with a structured sequence of investigation steps so you work through a SOC scenario the same way you would in production — inside your own SIEM, against real events. As you complete each step you submit findings as artifacts, and ThreatLab tracks your progress automatically.
+
+## Exercise Anatomy
+
+Every exercise is made up of the following fields:
+
+<Accordion title="Title">
+  A short, descriptive name that identifies the scenario. Displayed on the exercise card and in learning path listings.
+</Accordion>
+
+<Accordion title="Description">
+  A narrative overview of the scenario — the threat context, the environment, and what you are expected to investigate.
+</Accordion>
+
+<Accordion title="Difficulty">
+  One of four tiers: **Easy**, **Medium**, **Hard**, or **Expert**. Difficulty reflects the complexity of the log data and the depth of analysis required.
+</Accordion>
+
+<Accordion title="Duration">
+  The estimated time to complete the exercise, expressed in minutes.
+</Accordion>
+
+<Accordion title="Points">
+  The score awarded when you submit all required artifacts and complete the exercise.
+</Accordion>
+
+<Accordion title="MITRE ATT&CK Tags">
+  One or more ATT&CK technique or tactic identifiers that map the scenario to the MITRE framework. Use these to build targeted skill coverage across your team.
+</Accordion>
+
+<Accordion title="Archive Sections">
+  One or more log archive sections, each carrying LEEF and/or ECS payloads. ThreatLab selects the correct payload format at exercise start based on your SIEM destination.
+</Accordion>
+
+<Accordion title="Investigation Steps">
+  An ordered list of steps that guide you through the scenario. Each step carries a prompt and one or more expected artifact values you must submit to advance.
+</Accordion>
+
+## Archive Formats
+
+ThreatLab supports two log payload formats so exercises can target any supported SIEM:
+
+<CardGroup cols={2}>
+  <Card title="LEEF" icon="server">
+    Log Event Extended Format. Used by **Splunk**, **QRadar**, and any syslog TCP-compatible SIEM. LEEF archives ship as structured key-value event lines.
+  </Card>
+  <Card title="ECS" icon="magnifying-glass">
+    Elastic Common Schema. Used by **Elasticsearch**. ECS archives contain JSON documents formatted for bulk indexing.
+  </Card>
+</CardGroup>
+
+A single exercise can carry both LEEF and ECS archives simultaneously, so it can be assigned to analysts on different SIEM stacks.
+
+**Accepted upload formats** when authoring an exercise: `.zip`, `.tar.gz`, `.tgz`, or paste log text directly into the editor (ThreatLab packs pasted content into a ZIP automatically).
+
+## Exercise Lifecycle States
+
+An exercise moves through four states from authoring to analyst completion:
+
+<Steps>
+  <Step title="Draft">
+    The exercise has been created but not yet published. It is invisible to analysts and does not appear in any learning path progress calculations.
+  </Step>
+  <Step title="Active">
+    The exercise is published and visible to analysts. It appears in the exercise catalog and counts toward learning path progress.
+  </Step>
+  <Step title="In Progress">
+    An analyst has started the exercise but has not yet submitted all required artifacts. Partial progress is auto-saved after every submission.
+  </Step>
+  <Step title="Completed">
+    The analyst has submitted accepted artifacts for every step. A completion record is created and points are awarded.
+  </Step>
+</Steps>
+
+## Step Artifacts
+
+Each investigation step defines one or more **expected artifact values** — the answers you are expected to extract from the log data. When you submit a response, ThreatLab matches it against the expected value using **case-insensitive, whitespace-trimmed equality**, so minor capitalisation differences do not cause incorrect failures.
+
+<Tip>
+  Your progress is auto-saved after every step submission. If you close the exercise and return later, you will pick up exactly where you left off.
+</Tip>
+
+## Investigation Notebooks
+
+While working through an exercise you can maintain a private **investigation notebook** — a scratchpad attached to your session. Notebook entries are organised into four categories:
+
+| Category | When to use it |
+|---|---|
+| **Observation** | Raw facts you notice in the log data — timestamps, IPs, user accounts. |
+| **Hypothesis** | Theories about what the threat actor may have done or intended. |
+| **Finding** | Conclusions you are confident enough to include in a report. |
+| **Other** | Anything that does not fit the above categories. |
+
+Notebooks are private to you by default. Instructors or administrators with the `review_notebooks` capability can read your notes for coaching and assessment purposes.
+
+<Note>
+  Only users with the **Author exercises** (`manage_exercises`) capability can create or edit exercises.
+</Note>

@@ -1,0 +1,95 @@
+---
+title: "Create and Manage Custom Permission Roles in ThreatLab"
+sidebarTitle: "Roles"
+description: "Create custom permission and title roles, assign capabilities, and control exactly what each team member can see and do in ThreatLab."
+---
+
+Roles determine what your team members can access in ThreatLab. You can create permission roles that bundle one or more capabilities together — granting access to specific admin features — or title roles that serve as cosmetic team designations with no effect on what a user can do. This model lets you express your SOC's org structure and authorization policy in a single place.
+
+## Prerequisites
+
+Creating, editing, and deleting roles requires the `manage_roles` capability. This capability is included in the built-in `admin` role.
+
+## Role Types
+
+<CardGroup cols={3}>
+  <Card title="Permission Roles" icon="shield-check">
+    Grant one or more capabilities to every user who holds the role. Authorization decisions throughout ThreatLab are driven entirely by permission roles.
+  </Card>
+  <Card title="Title Roles" icon="tag">
+    Cosmetic only — examples include **SOC Lead** or **Instructor**. They appear as badges on user profiles but grant no capabilities and have no effect on what a user can do.
+  </Card>
+  <Card title="System Roles" icon="lock">
+    The built-in `admin` and `analyst` roles are immutable (`is_system = true`). They cannot be edited or deleted. The `admin` role grants every capability; `analyst` grants none by default.
+  </Card>
+</CardGroup>
+
+## Creating a Role
+
+<Tabs>
+  <Tab title="Permission Role">
+    <Steps>
+      <Step title="Open the Roles panel">
+        Navigate to **Admin > Roles** and click **New Role**.
+      </Step>
+      <Step title="Name and describe the role">
+        Enter a name and an optional description that explains the role's purpose.
+      </Step>
+      <Step title="Choose a color">
+        Pick a color for the role badge displayed on user profiles.
+      </Step>
+      <Step title="Set the kind">
+        Set **Kind** to **Permission**.
+      </Step>
+      <Step title="Select capabilities">
+        Check each capability you want to grant. See the [Capabilities Reference](#capabilities-reference) table below.
+      </Step>
+      <Step title="Save">
+        Click **Save**. The role is immediately available to assign to users.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Title Role">
+    <Steps>
+      <Step title="Open the Roles panel">
+        Navigate to **Admin > Roles** and click **New Role**.
+      </Step>
+      <Step title="Name and describe the role">
+        Enter a name (e.g., **SOC Lead**) and an optional description.
+      </Step>
+      <Step title="Choose a color">
+        Pick a color for the badge.
+      </Step>
+      <Step title="Set the kind">
+        Set **Kind** to **Title**. No capabilities are shown — title roles are cosmetic only.
+      </Step>
+      <Step title="Save">
+        Click **Save**.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Capabilities Reference
+
+Every capability key recognized by ThreatLab is listed below. When building a permission role, check exactly the capabilities that team needs — no more.
+
+| Capability key | Label | Description |
+|---|---|---|
+| `manage_users` | Manage users | Edit profiles, ban/unban, assign roles |
+| `manage_exercises` | Author exercises | Create and edit exercises |
+| `curate_paths` | Curate learning paths | Promote paths to curated or onboarding |
+| `manage_roles` | Manage roles | Create roles and assign capabilities |
+| `view_status` | View platform status | Icinga-backed health dashboard |
+| `review_notebooks` | Review notebooks | Read analyst notebook entries |
+| `view_user_history` | View user history | See exercise progress and completions |
+| `manage_noise_logs` | Manage noise logs | Create and schedule background noise log jobs that ship to one or more SIEMs |
+| `force_siem_push` | Force SIEM push | Bypass upload cooldown for fresh archive shipping |
+
+## Deleting Roles
+
+Any non-system role can be deleted from its detail page in **Admin > Roles**. When a role is deleted, every user who held it loses its capabilities instantly.
+
+<Warning>
+  Role changes take effect immediately. Users currently working in ThreatLab will have their capabilities updated on their next action.
+</Warning>

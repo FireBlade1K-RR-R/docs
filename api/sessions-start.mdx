@@ -1,0 +1,112 @@
+---
+title: "POST /api/sessions/start — Ship Archive to a SIEM"
+sidebarTitle: "POST /sessions/start"
+description: "POST /api/sessions/start downloads a signed archive and ships its log events to a SIEM. Returns event counts and shift days. Requires manage_exercises."
+---
+
+Send a `POST` request to `/api/sessions/start` to ship a signed exercise archive to a SIEM destination. ThreatLab downloads the archive into memory, rebases log timestamps so the latest event lands two hours ahead of now, and delivers events to the target SIEM — all without writing anything to disk.
+
+**Method:** `POST`  
+**Path:** `/api/sessions/start`  
+**Auth:** Session cookie with `manage_exercises` capability
+
+---
+
+## Request Body
+
+<ParamField body="archiveDownloadUrl" type="string" required>
+  A signed URL pointing to the exercise archive. The archive **must** be a `.zip` file — `.tar.gz` is not supported on this endpoint.
+</ParamField>
+
+<ParamField body="siem" type="string" required>
+  The SIEM name exactly as configured in **Admin > Resources**. ThreatLab resolves the destination driver and payload format from this value.
+</ParamField>
+
+<ParamField body="indexName" type="string">
+  Override the destination index name. This field is ignored for `syslog_tcp` destinations and applies only to index-aware drivers like `splunk_hec` and `elastic_bulk`.
+</ParamField>
+
+---
+
+## Shipping Behavior
+
+ThreatLab selects the shipping path based on the destination's configured `payload_format`:
+
+**LEEF destinations (Splunk, syslog TCP — default):**
+ThreatLab extracts `.log` and `.txt` files from the archive, rebases `devTime` so the latest event equals now plus two hours, applies the syslog envelope if applicable (supporting `preserve_raw`, `synthesize_if_missing`, and `force_synthesize` modes), and ships events line by line.
+
+**ECS destinations (Elastic):**
+ThreatLab extracts `.ndjson` and `.json` documents and bulk indexes them directly into the target Elastic index.
+
+<Note>
+  The archive must be a `.zip` file. ThreatLab validates this before downloading. Pass a properly signed URL from Supabase Storage or another pre-authorized source.
+</Note>
+
+---
+
+## Response Fields
+
+<ResponseField name="ok" type="boolean">
+  `true` on success.
+</ResponseField>
+
+<ResponseField name="siem" type="string">
+  The SIEM name used for this shipment.
+</ResponseField>
+
+<ResponseField name="driver" type="string">
+  The resolved delivery driver: `splunk_hec`, `syslog_tcp`, or `elastic_bulk`.
+</ResponseField>
+
+<ResponseField name="events" type="number">
+  Total number of log events shipped to the SIEM.
+</ResponseField>
+
+<ResponseField name="files" type="number">
+  Number of files extracted from the archive and processed.
+</ResponseField>
+
+<ResponseField name="shiftDays" type="number">
+  Number of days log timestamps were shifted forward to bring the latest event to now plus two hours.
+</ResponseField>
+
+---
+
+## Example
+
+<CodeGroup>
+
+```bash Request
+curl -X POST https://threatlab.your-org.com/api/sessions/start \
+  -H 'Content-Type: application/json' \
+  -H 'Cookie: sb-access-token=YOUR_TOKEN' \
+  -d '{
+    "archiveDownloadUrl": "https://storage.example.com/signed-url",
+    "siem": "Splunk",
+    "indexName": "threatlab-section-a"
+  }'
+```
+
+```json Response
+{
+  "ok": true,
+  "siem": "Splunk",
+  "driver": "splunk_hec",
+  "events": 15000,
+  "files": 3,
+  "shiftDays": 12.45
+}
+```
+
+</CodeGroup>
+
+---
+
+## Error Cases
+
+| Status | Cause |
+|--------|-------|
+| `401` | Not authenticated — no valid session cookie present |
+| `403` | Authenticated but missing the `manage_exercises` capability |
+| `400` | Invalid request body, missing required fields, or a non-`.zip` archive URL |
+| `500` | SIEM unreachable, connection refused, or an unexpected server error |

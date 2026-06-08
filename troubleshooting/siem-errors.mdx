@@ -1,0 +1,80 @@
+---
+title: "ThreatLab SIEM Errors: Connection and Shipping Fixes"
+sidebarTitle: "SIEM Errors"
+description: "Diagnose and fix errors when ThreatLab ships log archives to Splunk, QRadar, or Elasticsearch, including connection failures and wipe issues."
+---
+
+SIEM errors in ThreatLab fall into three broad categories: connection failures, payload format mismatches, and wipe or re-fire problems. This page covers how to identify and fix each. Start by checking **Admin > Resources** to confirm your destination is configured and enabled, then work through the accordion entry that matches your symptom.
+
+<AccordionGroup>
+
+  <Accordion title="Exercise start fails: no SIEM destination found">
+    **Cause:** The SIEM name referenced by the exercise does not match any enabled destination in **Admin > Resources**.
+
+    **Fix:**
+    - Open **Admin > Resources** and locate the relevant SIEM destination.
+    - Verify that the destination name is spelled and cased exactly as the exercise expects — names are matched literally after whitespace trimming.
+    - Confirm the destination's **Enabled** toggle is on before retrying the exercise start.
+  </Accordion>
+
+  <Accordion title="Exercise start fails: partial section archive set">
+    **Cause:** The exercise has log archives for only some of its sections in the requested payload format. ThreatLab requires a complete archive set covering every section before it can ship data.
+
+    **Fix:**
+    - Ask the exercise author to upload the missing archives for all sections in the target payload format.
+    - Alternatively, switch to the other available payload format if the exercise has a complete archive set for that format instead.
+  </Accordion>
+
+  <Accordion title="Splunk HEC returning 400 or 403">
+    **Cause:** The HTTP Event Collector token is incorrect, or the target Splunk index does not exist.
+
+    **Fix:**
+    1. Open **Admin > Resources** and locate the Splunk destination.
+    2. Verify the HEC token matches the one configured in your Splunk instance.
+    3. In Splunk, confirm the index named in the destination exists. Create it if it does not.
+    4. Save the destination and retry.
+  </Accordion>
+
+  <Accordion title="Elasticsearch returning 401">
+    **Cause:** The username or password stored for the Elasticsearch destination is wrong or has expired.
+
+    **Fix:** Open **Admin > Resources**, edit the Elasticsearch destination, update the credentials to match your current Elastic deployment, save, and retry.
+  </Accordion>
+
+  <Accordion title="syslog TCP connection refused">
+    **Cause:** The host or port configured for the syslog destination is incorrect, or a firewall is blocking the connection between the ThreatLab server and your SIEM.
+
+    **Fix:**
+    1. Open **Admin > Resources** and verify the host and port for the syslog destination.
+    2. Confirm the port is open on any firewall or security group between the ThreatLab server and the target SIEM.
+    3. Test connectivity from the ThreatLab server to the SIEM host and port before retrying.
+  </Accordion>
+
+  <Accordion title="Noise job wipe re-fire not working">
+    **Symptom:** After a session wipe, noise jobs configured to re-fire on wipe do not re-fire as expected.
+
+    **Cause:** The SIEM name in the noise job's target list does not match the name of the SIEM destination. ThreatLab normalises names by trimming leading and trailing whitespace, but the core name must still be identical.
+
+    **Fix:** Ensure the destination name in **Admin > Resources** and the target name used in the noise job are exactly the same string after trimming. Edit whichever side has the discrepancy to bring them into alignment.
+  </Accordion>
+
+  <Accordion title="SIEM wipe response shows QRadar in skipped list">
+    **Cause:** This is expected behaviour. QRadar destinations configured as syslog TCP connections have no programmatic wipe mechanism — ThreatLab cannot send a delete or clear command over a raw syslog stream.
+
+    **Fix:** No action is required. ThreatLab skips syslog TCP destinations during wipe operations and reports them in the skipped list of the wipe response. If you need to clear data from a syslog-based SIEM, you must do so manually within that platform.
+  </Accordion>
+
+  <Accordion title="ECS archive not shipping to Elasticsearch">
+    **Cause:** Either the Elasticsearch destination's payload format is not set to ECS, or the exercise does not have ECS-format archives uploaded for all of its sections.
+
+    **Fix:**
+    1. Open **Admin > Resources**, edit the Elasticsearch destination, and confirm the **Payload Format** is set to **ECS**.
+    2. Ask the exercise author to verify that ECS archives have been uploaded for every section of the exercise.
+    3. Once both conditions are met, retry the exercise start.
+  </Accordion>
+
+</AccordionGroup>
+
+<Tip>
+  **Admin > Resources > Noise Jobs > Recent Runs** shows per-execution, per-SIEM error messages and event counts — it is the fastest way to diagnose exactly where a noise shipping failure occurred.
+</Tip>

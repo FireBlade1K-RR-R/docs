@@ -1,0 +1,99 @@
+---
+title: "Configure SIEM Log Destinations and Delivery Resources"
+sidebarTitle: "SIEM Resources"
+description: "Add Splunk, syslog TCP, and Elasticsearch destinations so ThreatLab can ship exercise log archives and analysts investigate real events in their SIEM."
+---
+
+SIEM destinations tell ThreatLab where to ship log archives when an analyst starts or redoes an exercise. You can configure one or more destinations under **Admin > Resources**, mix drivers to support different SIEM products in the same deployment, and enable or disable individual destinations without deleting them.
+
+## Prerequisites
+
+Configuring SIEM destinations requires the `manage_exercises` capability, which is included in the built-in `admin` role.
+
+<Tip>
+  Configure at least one SIEM destination before publishing exercises to analysts.
+</Tip>
+
+## Adding a SIEM Destination
+
+<Steps>
+  <Step title="Open the destination form">
+    Navigate to **Admin > Resources > SIEMs** and click **Add Destination**.
+  </Step>
+  <Step title="Enter a SIEM name">
+    Type a display name for this destination. This name is used in the UI, API calls, and noise job target lists — it is **case-sensitive**.
+  </Step>
+  <Step title="Choose a driver">
+    Select the driver that matches your SIEM product. Each driver has its own required fields:
+
+    <AccordionGroup>
+      <Accordion title="splunk_hec — Splunk HTTP Event Collector">
+        | Field | Required | Notes |
+        |---|---|---|
+        | Host | Yes | Splunk hostname or IP |
+        | HEC Token | Yes | HTTP Event Collector token |
+        | Index | Yes | Target Splunk index |
+        | Management port | Yes | Typically `8089` |
+        | Management protocol | Yes | `https` (recommended) or `http` |
+        | Admin password | Yes | Used by the management API to wipe the index on session reset |
+      </Accordion>
+      <Accordion title="syslog_tcp — Raw TCP Syslog">
+        | Field | Required | Notes |
+        |---|---|---|
+        | Host | Yes | Syslog receiver hostname or IP |
+        | Port | Yes | TCP port |
+        | Header mode | No | `preserve_raw`, `synthesize_if_missing`, or `force_synthesize` |
+        | Header format | No | `rfc3164` or `rfc5424` |
+        | Source identity | No | Source host string inserted into the header |
+        | PRI | No | Priority value 0–191 |
+        | App name | No | Syslog APP-NAME field |
+        | Process ID | No | Syslog PROCID field |
+        | Message ID | No | Syslog MSGID field |
+      </Accordion>
+      <Accordion title="elastic_bulk — Elasticsearch Bulk API">
+        | Field | Required | Notes |
+        |---|---|---|
+        | Host | Yes | Elasticsearch hostname or IP |
+        | Port | Yes | Typically `9200` |
+        | Username | Yes | Elasticsearch username |
+        | Password | Yes | Elasticsearch password |
+        | Index | Yes | Target index name |
+      </Accordion>
+    </AccordionGroup>
+  </Step>
+  <Step title="Set the payload format">
+    Choose the log format ThreatLab will ship to this destination:
+    - **LEEF** — Default. Best for Splunk and syslog receivers.
+    - **ECS** — Elastic Common Schema. Use this for Elasticsearch destinations.
+  </Step>
+  <Step title="Enable the destination">
+    Toggle **Enabled** on. Disabled destinations are silently skipped when an exercise starts.
+  </Step>
+  <Step title="Save">
+    Click **Save** to create the destination. It is immediately active for any new exercise sessions.
+  </Step>
+</Steps>
+
+<Note>
+  SIEM name is case-sensitive. It must match exactly in exercise start requests and noise job target lists.
+</Note>
+
+## Enabling and Disabling Destinations
+
+You can toggle a destination on or off from its detail page at any time. Disabled destinations are ignored at exercise start — no logs are shipped to them, and they do not block other destinations from receiving events.
+
+## Wipe Behavior on Session Reset
+
+When an analyst resets their session (`DELETE /api/sessions`), ThreatLab wipes the SIEM index before re-shipping archives so the analyst starts with a clean dataset.
+
+<CardGroup cols={3}>
+  <Card title="Splunk HEC" icon="trash">
+    Wipes the configured index via the Splunk management API using the admin credentials you provided.
+  </Card>
+  <Card title="Elasticsearch" icon="trash">
+    Removes all documents in the target index using the `_delete_by_query` API.
+  </Card>
+  <Card title="Syslog TCP" icon="minus-circle">
+    No wipe mechanism exists for raw TCP syslog. These destinations are skipped during the wipe phase.
+  </Card>
+</CardGroup>

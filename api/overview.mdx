@@ -1,0 +1,87 @@
+---
+title: "ThreatLab REST API — Endpoints and Response Reference"
+sidebarTitle: "Overview"
+description: "ThreatLab exposes REST endpoints to ship exercise archives to SIEMs, run noise jobs, stream platform status events, and check server health."
+---
+
+ThreatLab's REST API gives you programmatic control over exercise sessions, noise log dispatch, real-time platform health, and health checks. All endpoints are served from the same origin as the ThreatLab web app — no separate API subdomain. Replace `https://threatlab.your-org.com` with your actual ThreatLab instance URL in all examples below.
+
+## Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/sessions/start` | Ship a signed archive to a SIEM |
+| DELETE | `/api/sessions` | Wipe one or more SIEM indexes |
+| POST | `/api/noise/run` | Execute a noise log dispatch job |
+| GET | `/api/platform-status/events` | SSE stream of Icinga health events |
+| GET | `/api/health` | Unauthenticated health check |
+
+## Authentication
+
+ThreatLab uses two authentication mechanisms depending on the caller:
+
+- **Session cookie** — used by the browser and web UI for all routes except `POST /api/noise/run`.
+- **Bearer token** — accepted **only** on `POST /api/noise/run` for `pg_cron` and automation scripts.
+
+`GET /api/health` requires no authentication. See the [Authentication](/api/authentication) page for full details.
+
+## Response Format
+
+All responses are JSON. Successful responses include `"ok": true` alongside the result data. Error responses include an `"error"` string describing the failure.
+
+```json
+{ "ok": true, "siem": "Splunk", "driver": "splunk_hec" }
+```
+
+```json
+{ "ok": false, "error": "Missing required capability: manage_exercises" }
+```
+
+## Error Codes
+
+| Status | Meaning |
+|--------|---------|
+| `401` | Not authenticated |
+| `403` | Authenticated but lacks the required capability |
+| `400` | Invalid request body or parameters |
+| `500` | Server error |
+
+## Endpoint Reference
+
+<CardGroup cols={2}>
+  <Card
+    title="POST /sessions/start"
+    icon="arrow-up-from-bracket"
+    href="/api/sessions-start"
+  >
+    Ship a signed archive to a SIEM destination. Rebases timestamps and returns event counts.
+  </Card>
+  <Card
+    title="DELETE /sessions"
+    icon="trash"
+    href="/api/sessions-wipe"
+  >
+    Wipe log data from one or more SIEM indexes and optionally re-fire noise jobs.
+  </Card>
+  <Card
+    title="POST /noise/run"
+    icon="bolt"
+    href="/api/noise-run"
+  >
+    Execute a noise log dispatch job manually or via pg_cron automation.
+  </Card>
+  <Card
+    title="GET /platform-status/events"
+    icon="signal-stream"
+    href="/api/platform-status-sse"
+  >
+    Subscribe to a real-time SSE stream of Icinga 2 platform health events.
+  </Card>
+  <Card
+    title="GET /health"
+    icon="heart-pulse"
+    href="/api/health"
+  >
+    Unauthenticated liveness probe for load balancers and uptime monitors.
+  </Card>
+</CardGroup>

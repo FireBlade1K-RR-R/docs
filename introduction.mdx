@@ -1,0 +1,41 @@
+---
+title: "ThreatLab Introduction: SOC Training for Security Teams"
+sidebarTitle: "Introduction"
+description: "ThreatLab is an operator console for SOC training. Build investigation exercises, ship log archives to your SIEM, and track analyst skill development."
+---
+
+ThreatLab is a hands-on SOC training platform that gives security teams everything they need to build, run, and measure investigation exercises. Administrators author realistic scenarios and ship log archives directly to your SIEM, while analysts work through step-by-step investigations in a dedicated workspace. Learning paths let instructors sequence exercises into structured curricula, track individual progress, and guide new analysts through onboarding flows. Real-time collaboration features — online presence, direct messaging, and a live leaderboard — keep your team engaged, and a built-in platform health monitor surfaces the operational state of your environment at a glance.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Sign in, find an exercise, and submit your first investigation in five steps.
+  </Card>
+  <Card title="Exercises" icon="dumbbell" href="/concepts/exercises">
+    Learn how exercises are structured, authored, and delivered to your SIEM.
+  </Card>
+  <Card title="Learning Paths" icon="route" href="/concepts/learning-paths">
+    Curate ordered exercise sequences with progress tracking and unlock logic.
+  </Card>
+  <Card title="Administration" icon="shield" href="/admin/user-management">
+    Manage users, roles, SIEM destinations, and platform configuration.
+  </Card>
+</CardGroup>
+
+## Key Features
+
+- **Exercise authoring** — Create investigation scenarios with ordered steps, expected artifacts, and section-aware LEEF or ECS log archives. Archives can be uploaded as `.zip`, `.tar.gz`, or `.tgz` files, pasted as plain text, or ingested over live TCP intake.
+- **Learning paths** — Curate sequences of exercises with per-analyst progress tracking, prerequisite unlock logic, and onboarding flows for new team members.
+- **Analyst workspace** — Run exercises, submit step artifacts, maintain investigation notebooks, and track completion streaks from a single interface.
+- **Noise log dispatcher** — Schedule recurring background jobs that ship LEEF events to your SIEM to generate realistic baseline traffic for training purposes.
+- **SIEM integrations** — Ship log archives to Splunk via HTTP Event Collector (HEC), syslog TCP (RFC 3164 or RFC 5424), or Elasticsearch bulk ingest.
+- **Encrypted direct messages** — Participant-scoped messages are end-to-end encrypted before storage and delivered in real time.
+- **Leaderboard and completion streaks** — A ranked leaderboard tracks points and completions across your team, and streaks reward consistent daily engagement.
+- **Platform health monitoring** — An administrator status dashboard gives administrators a live view of platform and service health.
+
+## Signing In
+
+Navigate to your organization's ThreatLab URL in any modern browser. On the login page you can sign in with your **email address and password**, or click the **Sign in with Microsoft** button to authenticate through Microsoft Entra ID SSO if your organization has it enabled.
+
+<Note>
+  Your ThreatLab administrator sets up SSO. Contact them if you need Entra ID login enabled.
+</Note>

@@ -1,0 +1,63 @@
+---
+title: "Running ThreatLab Exercises: Analyst Workflow Guide"
+sidebarTitle: "Run Exercises"
+description: "Start an exercise, investigate log events in your SIEM, submit step artifacts, and complete the scenario to earn points and record your progress."
+---
+
+ThreatLab exercises put real log data into your SIEM so you can practise SOC investigation techniques in a hands-on environment. This guide covers the full analyst workflow — finding an exercise, starting it, working through each investigation step, and recording your completion so your progress and points are updated.
+
+## Finding exercises
+
+Navigate to **Exercises** in the left sidebar to browse the full catalogue. Each exercise card shows the title, difficulty level, estimated duration, point value, and MITRE ATT&CK tags. Use the tags and difficulty filter to find scenarios that match your current learning goals.
+
+**Learning Paths** organise exercises into a recommended sequence. If your administrator has set up a learning path, follow it in order — each exercise unlocks the next as you complete it.
+
+## Starting an exercise
+
+<Steps>
+  <Step title="Open the exercise detail page">
+    Click the exercise title from the catalogue or learning path view. The detail page shows the full description, MITRE tags, and the ordered list of investigation steps you will work through.
+  </Step>
+  <Step title="Click Start">
+    Click the **Start** button. ThreatLab creates a session and ships the exercise log archive to your configured SIEM destination. Depending on archive size, shipping may take a few seconds.
+  </Step>
+  <Step title="Locate the logs in your SIEM">
+    Once the archive is shipped, the exercise page shows the index name or sourcetype where the logs were ingested. Open your SIEM and search that location to confirm the data has arrived before you begin investigating.
+  </Step>
+  <Step title="Investigate and work through each step">
+    Read each step's investigation prompt, search the logs in your SIEM, and record the artifact value you discover. Submit the value in the artifact field for that step. When you are ready to move on, proceed to the next step — partial progress auto-saves so you can close the browser and return later.
+  </Step>
+</Steps>
+
+<Note>
+  Starting an exercise ships real log data to your organisation's SIEM. Check with your administrator before starting exercises in a production environment — use a dedicated training index or destination to avoid mixing exercise data with live operational data.
+</Note>
+
+## Working through steps
+
+Steps appear in order on your exercise workspace. Each step includes an investigation prompt that describes what you are looking for, and an artifact submission field where you enter your answer. Submissions are checked **case-insensitively** — capitalisation differences will not cause a correct answer to be rejected. Your progress auto-saves after each accepted submission, so closing the page does not lose your work.
+
+## Investigation notebook
+
+Your exercise workspace includes a private notebook where you can write notes as you investigate. To open it, click **Notebook** from the exercise workspace toolbar.
+
+<Accordion title="Notebook entry categories">
+  - **Observation** — raw data points you notice in the logs
+  - **Hypothesis** — possible explanations you are testing
+  - **Finding** — confirmed conclusions from your investigation
+  - **Other** — anything that does not fit the above categories
+</Accordion>
+
+Notebook entries are private to you. Administrators with the `review_notebooks` capability can read them if your organisation uses a supervised training model, so treat your notebook as a professional working document.
+
+## Completing an exercise
+
+When all step artifacts have been submitted and accepted, ThreatLab automatically records your completion, awards the exercise's point value to your account, and updates the leaderboard. The exercise moves to your **History** page where you can review your submitted artifacts and the time you took.
+
+## Redoing an exercise
+
+Open a completed exercise and click **Redo** to start a fresh session. ThreatLab creates a new session and ships the archive again. If you have the `force_siem_push` capability, the platform bypasses the normal upload cooldown between sessions.
+
+<Tip>
+  Check the MITRE ATT&CK tags on the exercise before you start — they hint at which adversary techniques appear in the logs and can save you significant investigation time by narrowing your search.
+</Tip>

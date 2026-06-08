@@ -1,0 +1,78 @@
+---
+title: "SIEM Integrations: Splunk, QRadar, and Elasticsearch"
+sidebarTitle: "SIEM Integrations"
+description: "ThreatLab ships exercise log archives to your SIEM so analysts investigate real events. Supports Splunk HEC, syslog TCP, and Elasticsearch bulk indexing."
+---
+
+When you start an exercise, ThreatLab connects to your configured SIEM destination and ships the exercise log archive so you investigate real events in the tooling you use every day. No manual data loading, no synthetic replays — the logs land in your SIEM index and you work the case from there. Your administrator configures the destination connections; you just hit **Start** and begin investigating.
+
+## Supported Drivers
+
+ThreatLab supports three shipping drivers, each targeting a different SIEM stack:
+
+| Driver | Protocol | Typical Use Case |
+|---|---|---|
+| `splunk_hec` | HTTPS | Splunk HTTP Event Collector — sends events to a Splunk index via the HEC token endpoint. |
+| `syslog_tcp` | TCP | QRadar and any other syslog-compatible SIEM — delivers events as syslog frames over a raw TCP connection. |
+| `elastic_bulk` | HTTPS | Elasticsearch — indexes documents using the Elasticsearch Bulk API. |
+
+## Payload Formats
+
+The driver you use determines which log payload format ThreatLab ships:
+
+<CardGroup cols={2}>
+  <Card title="LEEF" icon="server">
+    **Log Event Extended Format.** Default for `splunk_hec` and `syslog_tcp`. LEEF archives contain structured key-value event lines compatible with Splunk and QRadar parsers.
+  </Card>
+  <Card title="ECS" icon="magnifying-glass">
+    **Elastic Common Schema.** Used by `elastic_bulk`. ECS archives contain JSON documents pre-formatted for Elasticsearch bulk indexing.
+  </Card>
+</CardGroup>
+
+An exercise can carry **both LEEF and ECS archives simultaneously**. ThreatLab selects the correct format at exercise start based on the `payload_format` configured on your SIEM destination — so the same exercise works across different analyst environments without any changes.
+
+## Syslog TCP Envelope Settings
+
+When your destination uses the `syslog_tcp` driver, your administrator can configure the syslog envelope on a per-destination basis. These settings control how ThreatLab frames each event before it goes on the wire:
+
+| Setting | Options | Notes |
+|---|---|---|
+| **Header mode** | `preserve_raw`, `synthesize_if_missing`, `force_synthesize` | Controls whether the original log header is kept, filled in if absent, or always overwritten. |
+| **Header format** | `rfc3164`, `rfc5424` | Selects the syslog framing standard. |
+| **Source identity** | String | The hostname or IP ThreatLab presents as the log source. |
+| **PRI** | Integer 0–191 | RFC 5424 PRIVAL encoding facility and severity. |
+| **App name** | String | The application name field in the syslog header. |
+| **Process ID** | String | The `procid` field in the syslog header. |
+| **Message ID** | String | The `msgid` field in the syslog header. |
+
+<Info>
+  A QRadar-compatible destination profile typically uses **RFC 5424** header format with full syslog metadata populated in the defaults. Ask your administrator to verify the QRadar destination is configured with `rfc5424` and matching source identity values.
+</Info>
+
+## Archive Resolution Order
+
+At exercise start, ThreatLab resolves which archive to ship using the following priority order:
+
+<Steps>
+  <Step title="Section archives (exercise_section_archives)">
+    ThreatLab first looks for per-section archives tagged with the requested payload format (LEEF or ECS). If section archives exist for the format, **all sections must have a matching archive** — ThreatLab refuses to ship a partial set.
+  </Step>
+  <Step title="Legacy per-exercise archive (exercise_archives)">
+    If no section archives are found, ThreatLab falls back to a single archive attached to the exercise record as a whole.
+  </Step>
+  <Step title="Legacy exercise columns">
+    If neither of the above exists, ThreatLab reads archive metadata directly from the legacy columns on the exercise row itself.
+  </Step>
+</Steps>
+
+## Wipe and Re-Fire
+
+When you delete an active session, ThreatLab wipes the corresponding SIEM index so the environment is clean for the next attempt. Noise log jobs that have `propagate_on_wipe` enabled automatically **re-fire** after a wipe to refill your SIEM with background noise events — keeping the environment realistic for the next analyst who starts the exercise.
+
+<Warning>
+  Deleting a session permanently removes the SIEM index for that exercise run. Any notes or in-progress work not saved to your investigation notebook will be lost. Use the redo flow if you want to restart while keeping your notebook.
+</Warning>
+
+<Note>
+  SIEM destinations are configured by your ThreatLab administrator under **Admin > Resources**. Contact them to add a new connection or update an existing one.
+</Note>

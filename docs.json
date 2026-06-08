@@ -1,0 +1,97 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "ThreatLab",
+  "theme": "aspen",
+  "colors": {
+    "primary": "#bf3b41",
+    "light": "#f7ecd7",
+    "dark": "#090908"
+  },
+  "logo": {
+    "light": "https://media.brand.dev/78bd2afc-d387-429e-932c-182e70b1e489.svg",
+    "dark": "https://media.brand.dev/78bd2afc-d387-429e-932c-182e70b1e489.svg"
+  },
+  "favicon": "https://media.brand.dev/823ddaa7-db19-483c-b274-cbaf526d5561.png",
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Sign In",
+      "href": "/login"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "configuration"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/exercises",
+              "concepts/learning-paths",
+              "concepts/roles-capabilities",
+              "concepts/siem-integrations"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/authoring-exercises",
+              "guides/running-exercises",
+              "guides/noise-logs",
+              "guides/direct-messages",
+              "guides/platform-status"
+            ]
+          },
+          {
+            "group": "Administration",
+            "pages": [
+              "admin/user-management",
+              "admin/roles",
+              "admin/siem-resources",
+              "admin/bootstrapping"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/common-issues",
+              "troubleshooting/siem-errors",
+              "troubleshooting/auth-issues"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api/overview",
+              "api/authentication"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api/sessions-start",
+              "api/sessions-wipe",
+              "api/noise-run",
+              "api/platform-status-sse",
+              "api/health"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

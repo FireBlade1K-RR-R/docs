@@ -1,0 +1,60 @@
+---
+title: "Bootstrap the First ThreatLab Admin Account via SQL"
+sidebarTitle: "Bootstrapping"
+description: "Promote the first user to admin via a SQL command so you can configure roles, SIEMs, and exercises after your initial ThreatLab deployment."
+---
+
+After deploying ThreatLab for the first time, no users have admin privileges — the database is empty of role assignments. You must promote the first admin account by running a SQL command directly against the database. Once that account is in place, all subsequent role assignments can be done through the ThreatLab UI without ever touching SQL again.
+
+## Prerequisites
+
+<CardGroup cols={2}>
+  <Card title="Supabase Studio" icon="browser">
+    Access to the Supabase dashboard for your ThreatLab instance, with permission to open the **SQL Editor**.
+  </Card>
+  <Card title="PostgreSQL access" icon="database">
+    Alternatively, a direct `psql` connection to the underlying PostgreSQL database with a role that can write to `auth.users` and `public.user_roles`.
+  </Card>
+</CardGroup>
+
+## Promoting the First Admin
+
+<Steps>
+  <Step title="Sign in to ThreatLab">
+    Open your ThreatLab instance and sign in with the account you want to promote to admin. If the account does not exist yet, create it first through the normal sign-up flow.
+  </Step>
+  <Step title="Open the SQL editor">
+    In **Supabase Studio**, navigate to the **SQL Editor**. If you are using a direct connection, open a `psql` session against your database instead.
+  </Step>
+  <Step title="Run the promotion query">
+    Copy the SQL below, replace `you@your-org.com` with the email address of the account you signed in with, and execute it.
+
+    ```sql
+    update auth.users
+    set raw_app_meta_data = raw_app_meta_data || jsonb_build_object('role', 'Admin')
+    where email = 'you@your-org.com';
+
+    insert into public.user_roles (user_id, role_id)
+    select u.id, r.id
+    from auth.users u
+    join public.roles r on r.name = 'admin'
+    where u.email = 'you@your-org.com'
+    on conflict do nothing;
+    ```
+  </Step>
+  <Step title="Refresh your session">
+    Sign out of ThreatLab, then sign back in. Your session JWT will be refreshed and will include the new admin role and all of its capabilities.
+  </Step>
+</Steps>
+
+## After Promotion
+
+Once you sign back in, you will see the full admin navigation: **Users**, **Roles**, **Resources**, and **Status**. From here you can grant the `admin` role to additional accounts through **Admin > Users > Assign Role** — no further SQL is required.
+
+<Warning>
+  Keep the number of admin accounts minimal. The admin role grants every capability in ThreatLab.
+</Warning>
+
+<Note>
+  After bootstrapping the first admin, all subsequent role assignments are handled through the ThreatLab UI — no further SQL is required.
+</Note>

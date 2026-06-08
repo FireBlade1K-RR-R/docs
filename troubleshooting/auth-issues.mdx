@@ -1,0 +1,73 @@
+---
+title: "Diagnose and Fix ThreatLab Login and Access Issues"
+sidebarTitle: "Auth Issues"
+description: "Fix login failures, unexpected session logouts, 403 Forbidden errors, and missing sidebar navigation items in ThreatLab for analysts and admins."
+---
+
+Most authentication and access issues in ThreatLab come down to missing capabilities or session problems. ThreatLab uses a capability-based access model — what you can see and do depends entirely on the roles assigned to your account. This page walks through the most common cases and the steps you need to take to resolve them.
+
+<AccordionGroup>
+
+  <Accordion title="Cannot log in with email and password">
+    **Steps to resolve:**
+    1. Check that Caps Lock is not on — passwords are case-sensitive.
+    2. Try the password reset flow at `/auth/forgot-password`. You will receive a recovery email with a link to set a new password.
+    3. If you are still unable to log in after resetting your password, contact your administrator. Your account may have been banned, which prevents all sign-in attempts.
+  </Accordion>
+
+  <Accordion title="SSO or Entra ID sign-in button is missing">
+    **Cause:** Microsoft Entra ID (Azure AD) SSO has not been enabled for your organisation. The sign-in button only appears when the feature is configured on the platform.
+
+    **Fix:** Contact your administrator and ask them to enable SSO for your organisation.
+  </Accordion>
+
+  <Accordion title="Getting randomly logged out">
+    **Cause:** Your session cookie is being dropped between page loads. This is often caused by browser privacy settings, cookie-blocking extensions, or platform-level cookie policies interfering with the ThreatLab session cookie.
+
+    **Fix:**
+    1. Clear all cookies for your ThreatLab domain and sign in again.
+    2. Disable any browser extensions that block cookies for the ThreatLab domain.
+    3. If the problem recurs, contact your administrator — there may be a platform-level session configuration issue that needs attention.
+  </Accordion>
+
+  <Accordion title="403 Forbidden when performing an action">
+    **Cause:** Your account does not have the capability required for the action you are attempting. ThreatLab checks capabilities on every sensitive operation, and the request is rejected if the required capability is absent from your role set.
+
+    **Fix:** Ask an administrator to assign you a role that includes the needed capability. For a full list of capabilities and the actions they unlock, see the [Roles & Capabilities reference](/concepts/roles-capabilities).
+  </Accordion>
+
+  <Accordion title="Admin menu items not visible in sidebar">
+    **Cause:** The sidebar automatically hides navigation items for areas your account cannot access. Each admin section requires a specific capability:
+
+    | Sidebar item | Required capability |
+    |---|---|
+    | Users | `manage_users` or `view_user_history` |
+    | Roles | `manage_roles` |
+    | Resources | `manage_exercises` |
+    | Status | `view_status` |
+
+    **Fix:** Contact your administrator and ask them to assign a role that includes the capability for the section you need to access.
+  </Accordion>
+
+  <Accordion title="Password reset email not arriving">
+    **Steps to resolve:**
+    1. Check your spam or junk folder — reset emails are sometimes filtered.
+    2. Verify that the email address you entered matches the one registered on your account.
+    3. If email delivery is not working at all for your organisation, contact your administrator to check the platform's email configuration.
+  </Accordion>
+
+  <Accordion title="Cannot open a specific exercise or learning path">
+    **Cause:** The exercise is inactive (unpublished) and therefore not accessible to analysts, or you may need a specific role to access it.
+
+    **Fix:** Contact the exercise author or your administrator. They can either activate the exercise, grant you the appropriate role, or confirm whether the content is intentionally restricted.
+  </Accordion>
+
+</AccordionGroup>
+
+<Note>
+  ThreatLab uses session cookies to maintain your login state. Ensure cookies are not blocked for your ThreatLab domain — blocking them will prevent you from staying signed in.
+</Note>
+
+<Tip>
+  If you are unsure what capabilities your account has, look at the sidebar — items hidden from you require capabilities your current roles do not include. Visible items confirm the capabilities you already hold.
+</Tip>

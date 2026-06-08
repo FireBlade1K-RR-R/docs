@@ -1,0 +1,62 @@
+---
+title: "GET /api/platform-status/events — Health SSE Stream"
+sidebarTitle: "GET /platform-status/events"
+description: "GET /api/platform-status/events streams real-time Icinga 2 platform health events as Server-Sent Events for any authenticated ThreatLab user."
+---
+
+Connect to `/api/platform-status/events` to receive a real-time stream of Icinga 2 platform health updates. The endpoint uses Server-Sent Events (SSE) and keeps the connection open, pushing new health events to your client as they arrive. The connection closes only when you disconnect or the server triggers an abort.
+
+**Method:** `GET`  
+**Path:** `/api/platform-status/events`  
+**Auth:** Session cookie (any authenticated user — no specific capability required)
+
+---
+
+## Response Format
+
+The response uses `Content-Type: text/event-stream`. Each event is delivered as:
+
+```
+data: <json-object>
+
+```
+
+Two newlines follow each event as per the SSE specification. You do not need to set any `Accept` header — the endpoint always streams `text/event-stream`.
+
+---
+
+## Connecting from a Browser
+
+Use the browser's built-in `EventSource` API with `withCredentials: true` so that your session cookie is sent automatically with the request.
+
+```javascript
+const source = new EventSource(
+  '/api/platform-status/events',
+  { withCredentials: true }
+);
+
+source.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Health event:', data);
+};
+
+source.onerror = () => {
+  console.error('SSE connection lost — browser will retry automatically');
+};
+```
+
+<Note>
+  In browser environments, `withCredentials: true` sends your session cookie automatically. In Node.js or curl, pass the cookie manually in the `Cookie` header: `-H 'Cookie: sb-access-token=YOUR_TOKEN'`.
+</Note>
+
+---
+
+## Closing the Connection
+
+Call `source.close()` when you no longer need the stream. The server detects the client disconnect via `AbortSignal` and tears down the upstream Icinga subscription, so you are not billed for idle connections.
+
+---
+
+<Tip>
+  ThreatLab uses this endpoint internally to power the dashboard health panel. You only need to connect directly if you are building a custom status integration or an external monitoring overlay.
+</Tip>

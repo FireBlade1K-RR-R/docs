@@ -1,0 +1,61 @@
+---
+title: "Monitor Platform Health with the ThreatLab Status Page"
+sidebarTitle: "Platform Status"
+description: "The platform status page shows live Icinga 2 health data for your hosts and services, updated in real time via an SSE stream from ThreatLab."
+---
+
+ThreatLab surfaces Icinga 2 infrastructure health directly in the interface, giving your team visibility into platform issues before they affect training sessions. Rather than checking a separate monitoring dashboard, you can confirm that SIEMs, services, and hosts are all operational without leaving ThreatLab.
+
+## Dashboard health panel
+
+Every authenticated user sees a live health summary at the bottom of the dashboard. The panel shows either a green **All systems operational** badge or a count of active issues with a severity breakdown. The panel refreshes automatically via a server-sent event (SSE) stream — you do not need to reload the page to see updated status.
+
+A small **Checked X ago** indicator beneath the panel tells you how fresh the data is, so you can tell at a glance whether the status reflects the last few seconds or a longer polling gap.
+
+## Full status page
+
+<Info>
+  The full status page requires the **view\_status** capability. Navigate to **Admin > Status** to access it. If you do not see that menu item, contact your administrator.
+</Info>
+
+The full status page lists every monitored host and service with its current state and last-check metadata.
+
+<CardGroup cols={2}>
+  <Card title="Host states" icon="server">
+    - **Up** — host is reachable and healthy
+    - **Down** — host is not responding
+    - **Unreachable** — host cannot be reached from the monitoring node
+  </Card>
+  <Card title="Service states" icon="circle-check">
+    - **OK** — service is operating normally
+    - **Warning** — service is degraded but not failed
+    - **Critical** — service has failed or breached a critical threshold
+    - **Unknown** — service state cannot be determined
+  </Card>
+</CardGroup>
+
+Acknowledged issues and services currently in a scheduled downtime window are shown with footnote counts so you can distinguish known, managed problems from unexpected ones. Issues are sorted by severity — host-down appears first, followed by host-unreachable, critical, warning, and unknown. Up to six issues are shown per panel; click the **View more** link to see the full list.
+
+## Interpreting status indicators
+
+Use the following guidance to decide whether to proceed with training:
+
+<Accordion title="Green — All systems operational">
+  All monitored hosts are up and all services are in an OK state. Training can proceed normally. You are safe to start new exercises and expect log delivery to complete without interruption.
+</Accordion>
+
+<Accordion title="Amber — Warning">
+  One or more services are in a Warning state. Monitor the situation and check whether the affected service is related to the exercise you plan to run. Exercises may still run correctly depending on which service is degraded.
+</Accordion>
+
+<Accordion title="Red — Critical or host down">
+  A host is down or a service has reached a critical threshold. Contact your administrator before starting new exercises. Log delivery, SIEM shipping, or other platform functions may be impaired.
+</Accordion>
+
+## Real-time updates
+
+The status panel connects to the `/api/platform-status/events` SSE stream. The stream is authenticated — only users with an active session receive events. ThreatLab forwards Icinga event stream updates to your browser as they arrive, so the panel reflects state changes within seconds of Icinga detecting them. The connection closes automatically if you navigate away or your session ends.
+
+<Note>
+  Platform status requires Icinga 2 to be configured and reachable from your ThreatLab deployment. If the panel shows **Monitoring unreachable** instead of health data, the Icinga API is not accessible. Contact your ThreatLab administrator to verify the monitoring configuration and network connectivity.
+</Note>

@@ -1,0 +1,68 @@
+---
+title: "ThreatLab: SOC Training Platform for Security Teams"
+sidebarTitle: "Home"
+description: "ThreatLab is a hands-on SOC training platform. Author investigation exercises, run them against live SIEMs, and track analyst progress."
+---
+
+ThreatLab gives security operations teams a dedicated console for building and running realistic investigation training. Instructors author exercise scenarios with ordered investigation steps and real log archives; analysts work through them against actual SIEM infrastructure — Splunk, QRadar, or Elasticsearch — and submit findings as they go.
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get ThreatLab running and complete your first exercise in minutes.
+  </Card>
+  <Card title="Authoring Exercises" icon="pen-to-square" href="/guides/authoring-exercises">
+    Build investigation scenarios with steps, archives, and MITRE tags.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/overview">
+    Explore the full REST API for sessions, noise jobs, and health checks.
+  </Card>
+  <Card title="SIEM Integrations" icon="server" href="/concepts/siem-integrations">
+    Connect Splunk, QRadar, and Elasticsearch to ship log archives.
+  </Card>
+</CardGroup>
+
+## What you can do with ThreatLab
+
+ThreatLab covers the full training lifecycle — from authoring content to measuring analyst performance.
+
+<CardGroup cols={3}>
+  <Card title="Exercise Authoring" icon="file-pen" href="/guides/authoring-exercises">
+    Upload LEEF or ECS log archives, define investigation steps, and set expected artifacts.
+  </Card>
+  <Card title="Learning Paths" icon="route" href="/concepts/learning-paths">
+    Sequence exercises into structured curricula with automatic unlock logic.
+  </Card>
+  <Card title="Analyst Workspace" icon="microscope" href="/guides/running-exercises">
+    Run exercises, submit step artifacts, and keep private investigation notebooks.
+  </Card>
+  <Card title="Noise Log Jobs" icon="wave-square" href="/guides/noise-logs">
+    Schedule background log dispatches to keep your SIEM populated with realistic traffic.
+  </Card>
+  <Card title="Leaderboard & Streaks" icon="trophy" href="/guides/running-exercises">
+    Track completion streaks, points, and team standings in real time.
+  </Card>
+  <Card title="Platform Health" icon="heart-pulse" href="/guides/platform-status">
+    Monitor your infrastructure via the Icinga-backed platform status dashboard.
+  </Card>
+</CardGroup>
+
+## Get up and running
+
+<Steps>
+  <Step title="Sign in">
+    Navigate to your ThreatLab instance and sign in with your email and password, or via your organization's Microsoft Entra ID (SSO) connection.
+  </Step>
+  <Step title="Explore the exercise catalog">
+    Head to **Exercises** in the sidebar to browse available training scenarios. Each exercise shows its difficulty, estimated duration, and point value.
+  </Step>
+  <Step title="Start an exercise">
+    Open an exercise and click **Start**. ThreatLab ships the log archive to your assigned SIEM and opens the investigation workspace.
+  </Step>
+  <Step title="Submit your findings">
+    Work through each investigation step and submit the expected artifacts. When all steps are complete, ThreatLab records your completion and awards points.
+  </Step>
+</Steps>
+
+<Note>
+  If your organization uses custom roles or SIEM destinations, ask your ThreatLab administrator to configure them before you start your first exercise. See [Administration](/admin/user-management) for details.
+</Note>

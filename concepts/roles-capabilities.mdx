@@ -1,0 +1,62 @@
+---
+title: "ThreatLab Roles and Capabilities: Permission Model"
+sidebarTitle: "Roles & Capabilities"
+description: "ThreatLab uses a capability-based permission model. Roles bundle capabilities; a user's effective permissions are the union of all their assigned roles."
+---
+
+ThreatLab controls access through a **capability-based permission model** rather than a flat role hierarchy. Permission roles grant specific capabilities, and a user's effective access is the **union of all capabilities** across every permission role they hold. Title roles are purely cosmetic — they affect how your name appears in the UI but grant no permissions whatsoever. This separation keeps authorization decisions explicit and auditable.
+
+## Role Types
+
+<CardGroup cols={2}>
+  <Card title="Permission Roles" icon="shield-check">
+    Grant one or more capabilities. Every authorization decision in ThreatLab — server actions, API routes, and UI elements — is gated on a specific capability drawn from a permission role. A user can hold multiple permission roles; their effective capabilities are the combined set.
+  </Card>
+  <Card title="Title Roles" icon="id-badge">
+    Display-only labels such as **SOC Lead**, **Instructor**, or **Engineer**. Title roles appear next to your name in the platform but carry no permissions and are never checked during authorization.
+  </Card>
+</CardGroup>
+
+## System Roles
+
+Two roles are built into ThreatLab and cannot be modified or deleted:
+
+| Role | Kind | Capabilities |
+|---|---|---|
+| **admin** | Permission | All capabilities. Grants unrestricted access to every gated feature. |
+| **analyst** | Permission | None by default. Assigned automatically to every new user on sign-up. |
+
+Additional title roles — such as **Engineer** and **Instructor** — are pre-configured on every ThreatLab instance for cosmetic use.
+
+## Capabilities Reference
+
+The table below lists every capability in ThreatLab, its display label, and what it authorises you to do:
+
+| Capability | Label | What it lets you do |
+|---|---|---|
+| `manage_users` | Manage users | Edit user profiles, ban or unban accounts, and assign roles to other users. |
+| `manage_exercises` | Author exercises | Create new exercises and edit existing ones, including archive sections and steps. |
+| `curate_paths` | Curate learning paths | Promote learning paths to curated or onboarding status on the dashboard. |
+| `manage_roles` | Manage roles | Create custom roles and assign capabilities to them. |
+| `view_status` | View platform status | Access the Icinga-backed health dashboard at `/admin/status`. |
+| `review_notebooks` | Review notebooks | Read analysts' private investigation notes for coaching and assessment. |
+| `view_user_history` | View user history | See any user's exercise progress, completions, and notebook history from user management. |
+| `manage_noise_logs` | Manage noise logs | Create and schedule background noise log dispatch jobs that ship events to one or more SIEMs. |
+| `force_siem_push` | Force SIEM push | Bypass the exercise SIEM upload cooldown and force a fresh archive shipment on start or redo. |
+
+## Checking Your Own Capabilities
+
+You do not need to memorise which roles you hold. ThreatLab surfaces your permissions in two practical ways:
+
+<Tabs>
+  <Tab title="Sidebar Navigation">
+    The sidebar only renders navigation items that your account has the capability to access. If an admin page or feature is not visible in the sidebar, your account does not currently hold the required capability.
+  </Tab>
+  <Tab title="Gated Actions">
+    If you attempt an action — submitting a form, calling an API endpoint — without the required capability, ThreatLab returns a **403 Forbidden** error. This is the platform enforcing the same capability check that hides the UI element.
+  </Tab>
+</Tabs>
+
+<Note>
+  Contact your ThreatLab administrator to have roles assigned to your account. Administrators manage role assignments under **Admin > Users**.
+</Note>

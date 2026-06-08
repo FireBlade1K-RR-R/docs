@@ -1,0 +1,64 @@
+---
+title: "Get Started with ThreatLab: Your First Investigation"
+sidebarTitle: "Quickstart"
+description: "Sign in to ThreatLab, explore the exercise catalog, launch your first investigation, and submit your findings to earn your first leaderboard points."
+---
+
+This quickstart walks you through the core ThreatLab workflow: signing in to your organization's instance, browsing the exercise catalog, launching an investigation, and submitting your findings. By the end you will have completed your first exercise and earned your first points on the leaderboard.
+
+<Tip>
+  Check your Learning Paths first — your instructor may have assigned a specific starting exercise.
+</Tip>
+
+<Steps>
+  <Step title="Sign In">
+    Navigate to your organization's ThreatLab URL. On the login page, enter your **email address and password** and click **Sign In**, or click the **Sign in with Microsoft** button to authenticate through your organization's Entra ID SSO. After a successful login you are taken directly to the dashboard.
+  </Step>
+
+  <Step title="Explore the Exercise Catalog">
+    In the left sidebar, select **Exercises** to open the catalog. Each exercise card displays:
+
+    - **Difficulty** — a rated level indicating the expected analyst skill required
+    - **Estimated duration** — the approximate time to complete the investigation
+    - **Points** — the reward awarded on successful completion
+    - **MITRE ATT&CK tags** — technique and tactic tags that map the scenario to the framework
+
+    Browse or search the catalog to find an exercise that matches your skill level or current learning objective.
+  </Step>
+
+  <Step title="Start an Exercise">
+    Click an exercise title to open its detail page. Review the scenario description, then click **Start**. ThreatLab immediately ships the exercise's log archive to your configured SIEM destination so the events are ready to query before you begin your investigation.
+  </Step>
+
+  <Step title="Work Through the Investigation Steps">
+    Each exercise is divided into ordered investigation steps. Every step presents:
+
+    - A **prompt** describing what you need to find or answer
+    - An **artifact submission field** where you enter your answer
+
+    Submit the exact value requested — answers are evaluated case-insensitively. You do not need to complete all steps in a single session; your partial progress is saved automatically and resumes where you left off the next time you open the exercise.
+  </Step>
+
+  <Step title="Complete the Exercise and Earn Points">
+    Once you submit a correct artifact for every step, ThreatLab records your completion, awards the exercise's full point value to your profile, and updates the team leaderboard. Your completion streak increments if you have completed at least one exercise on each of the preceding days.
+  </Step>
+</Steps>
+
+## Your Dashboard at a Glance
+
+The dashboard gives you an immediate picture of where you stand. The four summary tiles show:
+
+<CardGroup cols={2}>
+  <Card title="Available Exercises" icon="list">
+    The total number of exercises you are eligible to start right now.
+  </Card>
+  <Card title="Completed" icon="circle-check">
+    The number of exercises you have fully completed.
+  </Card>
+  <Card title="In Progress" icon="spinner">
+    Exercises you have started but not yet finished.
+  </Card>
+  <Card title="Streak Days" icon="fire">
+    Your current consecutive daily completion streak.
+  </Card>
+</CardGroup>

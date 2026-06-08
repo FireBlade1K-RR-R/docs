@@ -1,0 +1,87 @@
+---
+title: "Diagnose and Fix Common ThreatLab Issues and Errors"
+sidebarTitle: "Common Issues"
+description: "Solutions to the most common ThreatLab problems: archive upload failures, exercise download errors, artifact submission rejections, and more."
+---
+
+This page covers the issues analysts and administrators encounter most often in ThreatLab and how to resolve them quickly. Work through the accordion entry that matches your symptom — each item describes the cause and the steps you need to take.
+
+<AccordionGroup>
+
+  <Accordion title="Archive upload fails">
+    **Symptom:** You see a "Failed to upload archive" error when creating or editing an exercise.
+
+    **Causes:**
+    - The file exceeds the 256 MB size limit enforced by the server and storage layer.
+    - The file format is not supported.
+    - Your session has expired since you loaded the page.
+
+    **Fix:**
+    - Ensure your archive is in `.zip`, `.tar.gz`, or `.tgz` format and is under 256 MB.
+    - Confirm you are still logged in before retrying — if your session has timed out, sign in again and re-upload.
+  </Accordion>
+
+  <Accordion title="Exercise archive download fails (403 or 404)">
+    **Symptom:** Clicking **Download** on an exercise archive returns a 403 or 404 error.
+
+    **Cause:** The signed download URL has expired. Signed URLs are valid for approximately 60 seconds after they are generated.
+
+    **Fix:** Reload the exercise page to generate a fresh signed URL, then click **Download** immediately.
+  </Accordion>
+
+  <Accordion title="Step artifact submission not accepted">
+    **Symptom:** Your answer looks correct but ThreatLab rejects it.
+
+    **Cause:** The submission contains leading or trailing whitespace, or the value does not exactly match what the exercise expects.
+
+    **Fix:** ThreatLab compares answers case-insensitively but does **not** ignore surrounding whitespace. Copy your answer carefully, strip any extra spaces or newlines, and resubmit. If you are still blocked, verify the exact expected value with your instructor or the exercise author.
+  </Accordion>
+
+  <Accordion title="Slow dashboard load">
+    **Symptom:** The dashboard takes more than 1 second to appear.
+
+    **Cause:** This is usually a temporary condition caused by server load or a slow network round-trip.
+
+    **Fix:** Refresh the page. If the slowness persists across multiple page loads or sessions, contact your administrator to check whether server resources are under pressure.
+  </Accordion>
+
+  <Accordion title="Noise job not firing">
+    **Symptom:** A noise job's scheduled run time has passed, but no run record appears in Recent Runs.
+
+    **Cause:** The job may be disabled, or the platform may be unable to reach the internal endpoint the job depends on.
+
+    **Fix:**
+    1. Go to **Admin > Resources > Noise Jobs** and confirm the job's **Enabled** toggle is on.
+    2. Open **Recent Runs** for that job and review any error messages logged against previous executions.
+    3. If errors mention an unreachable endpoint, contact your administrator to verify the app server is healthy.
+  </Accordion>
+
+  <Accordion title="Direct messages showing garbled text">
+    **Symptom:** Message content in direct conversations appears corrupted or unreadable.
+
+    **Cause:** The platform's message encryption configuration was changed after those messages were written. Messages stored under the previous configuration cannot be decrypted with the new one.
+
+    **Fix:** Contact your administrator. Messages stored under the previous configuration cannot be recovered — this is a data-loss scenario that requires an administrative decision on how to proceed.
+  </Accordion>
+
+  <Accordion title="Leaderboard not updating">
+    **Symptom:** Your points or ranking are not reflected on the leaderboard after completing an exercise.
+
+    **Cause:** There may be a brief propagation delay between a completion event and the leaderboard display.
+
+    **Fix:** Refresh the page. The leaderboard is computed on demand each time it is loaded, so a fresh page load will pull the latest scores.
+  </Accordion>
+
+  <Accordion title="Learning path shows incorrect progress">
+    **Symptom:** Your progress percentage on a learning path appears lower or higher than expected.
+
+    **Cause:** Retired (inactive) exercises are excluded from the progress calculation. Only active exercises count toward both the numerator and denominator.
+
+    **Fix:** This is expected behaviour. If an exercise you completed has since been deactivated, it no longer counts toward the total. Contact your administrator or the path author if you believe an exercise has been incorrectly deactivated.
+  </Accordion>
+
+</AccordionGroup>
+
+<Note>
+  If the issue persists, contact your ThreatLab administrator with a description of what you were doing and the full error message.
+</Note>

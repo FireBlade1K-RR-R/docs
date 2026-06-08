@@ -1,0 +1,67 @@
+---
+title: "ThreatLab API Authentication — Cookies and Tokens"
+sidebarTitle: "Authentication"
+description: "ThreatLab API uses session cookies for browser requests and a Bearer token for automated POST /api/noise/run calls from pg_cron or scripts."
+---
+
+ThreatLab's API uses two authentication mechanisms: session cookies for browser-initiated requests, and a shared Bearer token for the automated noise dispatch endpoint. Understanding which mechanism applies to your caller saves you from unexpected `401` and `403` responses.
+
+## Session Cookie Authentication
+
+Session cookies are the standard authentication path for the ThreatLab web UI and any browser-based caller.
+
+**Used by:** the ThreatLab web UI and any browser-based caller.
+
+**How it works:** sign in at `/login`. Once authenticated, the browser automatically attaches the session cookie to every subsequent request. You do not need to set any header manually in browser environments.
+
+### Required Capabilities per Route
+
+Not every authenticated user can reach every endpoint. ThreatLab's capability-based authorization model gates destructive routes behind named capabilities.
+
+| Route | Required Capability |
+|-------|---------------------|
+| `POST /api/sessions/start` | `manage_exercises` |
+| `DELETE /api/sessions` | `manage_exercises` |
+| `POST /api/noise/run` | `manage_noise_logs` |
+| `GET /api/platform-status/events` | Any authenticated user |
+
+<Info>
+  Your effective capability set is the union of all permission-role `permissions` arrays assigned to your account. Contact your ThreatLab administrator if you receive a `403` on a route you expect to access.
+</Info>
+
+Unauthenticated requests receive `401`. Authenticated requests that lack the required capability receive `403`.
+
+---
+
+## Bearer Token Authentication
+
+Bearer token authentication is reserved exclusively for `POST /api/noise/run` — the automated noise dispatch endpoint invoked by `pg_cron` or external scripts.
+
+**Used by:** `pg_cron` scheduled jobs and automation scripts calling `POST /api/noise/run` only.
+
+**How to pass the token:**
+
+```http
+POST /api/noise/run HTTP/1.1
+Host: threatlab.your-org.com
+Authorization: Bearer your-noise-dispatch-token
+Content-Type: application/json
+```
+
+The token is configured by your administrator on the server. Contact your administrator to obtain the value for your environment.
+
+<Note>
+  Bearer token authentication is accepted **only** on `POST /api/noise/run`. Passing a Bearer token to any other endpoint will result in a `401` — those routes require a valid session cookie.
+</Note>
+
+---
+
+## Unauthenticated Endpoints
+
+`GET /api/health` requires no authentication and is intentionally open for load balancer probes and uptime monitors. You can call it without any credentials.
+
+---
+
+<Warning>
+  Never include your Bearer token or session cookie in URL query parameters. Use the `Authorization` header for Bearer tokens, or rely on automatic browser cookie handling for session-based requests.
+</Warning>

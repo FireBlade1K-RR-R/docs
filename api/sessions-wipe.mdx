@@ -1,0 +1,100 @@
+---
+title: "DELETE /api/sessions — Wipe Exercise Logs from SIEMs"
+sidebarTitle: "DELETE /sessions"
+description: "DELETE /api/sessions wipes log data from Splunk or Elastic indexes and re-fires noise jobs with propagate_on_wipe enabled. Requires manage_exercises."
+---
+
+Send a `DELETE` request to `/api/sessions` to wipe log data from one or more SIEM indexes. ThreatLab clears the data from each target SIEM and automatically re-fires any noise jobs configured to repopulate the SIEM after a wipe.
+
+**Method:** `DELETE`  
+**Path:** `/api/sessions`  
+**Auth:** Session cookie with `manage_exercises` capability
+
+<Warning>
+  This permanently deletes data from your SIEM indexes. Use carefully in production environments — wiped data cannot be recovered through ThreatLab.
+</Warning>
+
+---
+
+## Query Parameters
+
+<ParamField query="siem" type="string" required>
+  The SIEM name to wipe, exactly as configured in **Admin > Resources**. Repeat the parameter to wipe multiple SIEMs simultaneously:
+  `?siem=Splunk&siem=Elastic`
+</ParamField>
+
+---
+
+## Wipe Behavior per Driver
+
+ThreatLab handles each driver type differently during a wipe:
+
+| Driver | Wipe Mechanism |
+|--------|----------------|
+| `splunk_hec` | Runs `search index=<name> \| delete` via the Splunk management API |
+| `elastic_bulk` | Runs `_delete_by_query` against the configured index |
+| `syslog_tcp` | Skipped — no wipe mechanism exists for raw TCP destinations |
+
+SIEMs that are skipped appear in the `skipped` array of the response rather than the `wiped` array.
+
+---
+
+## Noise Job Re-fire
+
+After wiping, ThreatLab automatically re-fires any noise jobs that have `propagate_on_wipe = true` and target one or more of the wiped SIEMs. This repopulates background noise data so the SIEM is not left empty after the wipe. Re-fired job IDs are returned per SIEM in the `re_fired` array.
+
+---
+
+## Response Fields
+
+<ResponseField name="ok" type="boolean">
+  `true` on success.
+</ResponseField>
+
+<ResponseField name="wiped" type="array">
+  List of SIEM names that were successfully wiped.
+</ResponseField>
+
+<ResponseField name="skipped" type="array">
+  List of SIEM names that were skipped (for example, `syslog_tcp` destinations with no wipe mechanism).
+</ResponseField>
+
+<ResponseField name="re_fired" type="array">
+  Array of objects describing noise jobs re-fired after the wipe.
+
+  <Expandable title="re_fired object fields">
+    <ResponseField name="siem" type="string">
+      The SIEM name for which jobs were re-fired.
+    </ResponseField>
+    <ResponseField name="job_ids" type="array">
+      Array of noise job UUIDs that were re-fired for this SIEM.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="re_fire_errors" type="array">
+  Array of error messages for any noise jobs that failed to re-fire. An empty array means all re-fires succeeded.
+</ResponseField>
+
+---
+
+## Example
+
+<CodeGroup>
+
+```bash Request
+curl -X DELETE 'https://threatlab.your-org.com/api/sessions?siem=Splunk&siem=Elastic' \
+  -H 'Cookie: sb-access-token=YOUR_TOKEN'
+```
+
+```json Response
+{
+  "ok": true,
+  "wiped": ["Splunk", "Elastic"],
+  "skipped": ["QRadar"],
+  "re_fired": [{"siem": "Splunk", "job_ids": ["abc-123"]}],
+  "re_fire_errors": []
+}
+```
+
+</CodeGroup>

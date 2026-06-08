@@ -1,0 +1,87 @@
+---
+title: "Manage Analyst Users, Roles, and Access in ThreatLab"
+sidebarTitle: "User Management"
+description: "Add analysts to your team, assign roles, ban accounts, and audit each analyst's exercise history from the ThreatLab Users admin panel."
+---
+
+The Users admin panel gives you full control over who can access ThreatLab, what roles they hold, and visibility into each analyst's exercise history. From a single view you can inspect every registered account, adjust role assignments on the fly, lock out accounts that should no longer have access, and audit what any analyst has worked on — all without touching the database.
+
+## Prerequisites
+
+Most actions in this section require the `manage_users` capability. Viewing an analyst's exercise history additionally requires the `view_user_history` capability. Both are bundled in the built-in `admin` role, or you can attach them to a custom permission role.
+
+## Viewing Users
+
+Navigate to **Admin > Users** to see every registered account. The table displays each user's email address, their assigned role badges, and current account status — either **Active** or **Banned**.
+
+<Note>
+  New users are automatically assigned the `analyst` role. Grant additional permission roles to enable capabilities.
+</Note>
+
+## Assigning and Revoking Roles
+
+A user can hold any number of roles simultaneously. Their effective capability set is the **union** of all capabilities granted by every permission role they hold.
+
+<Tabs>
+  <Tab title="Assign a Role">
+    <Steps>
+      <Step title="Open the Users panel">
+        Navigate to **Admin > Users**.
+      </Step>
+      <Step title="Select the user">
+        Click the user whose roles you want to modify.
+      </Step>
+      <Step title="Open the role picker">
+        Click **Assign Role** on the user detail panel.
+      </Step>
+      <Step title="Select the role">
+        Choose the role you want to grant from the dropdown list.
+      </Step>
+      <Step title="Confirm">
+        Click **Confirm** to save the assignment. The role badge appears on the user's profile immediately.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Revoke a Role">
+    <Steps>
+      <Step title="Open the Users panel">
+        Navigate to **Admin > Users**.
+      </Step>
+      <Step title="Select the user">
+        Click the user whose role you want to remove.
+      </Step>
+      <Step title="Revoke the role">
+        Click **Revoke** next to the role badge you want to remove. The capability is withdrawn immediately.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Banning Accounts
+
+Banning prevents a user from logging in or starting exercises. Use this when an account should be suspended without being deleted.
+
+<Steps>
+  <Step title="Open the Users panel">
+    Navigate to **Admin > Users**.
+  </Step>
+  <Step title="Select the user">
+    Click the user you want to ban.
+  </Step>
+  <Step title="Initiate the ban">
+    Click **Ban** on the user detail panel.
+  </Step>
+  <Step title="Confirm">
+    Confirm the action in the dialog. The account status changes to **Banned** immediately.
+  </Step>
+</Steps>
+
+<Warning>
+  Banning a user immediately ends their active session.
+</Warning>
+
+To reinstate a banned user, follow the same steps and click **Unban** instead.
+
+## Viewing User Exercise History
+
+With the `view_user_history` capability, clicking any user opens a detailed history panel showing their completed exercises, in-progress sessions, point totals, and notebook entries. Use this to assess analyst progress, identify blockers, or review notebook notes for coaching purposes.

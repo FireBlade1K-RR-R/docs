@@ -1,0 +1,118 @@
+---
+title: "POST /api/noise/run — Trigger a Noise Log Dispatch"
+sidebarTitle: "POST /noise/run"
+description: "POST /api/noise/run executes a noise log dispatch job, shipping LEEF events from stored archives to one or more SIEMs. Accepts Bearer token auth."
+---
+
+`POST /api/noise/run` executes a noise log dispatch job, pulling LEEF-formatted log archives from storage and shipping events to one or more configured SIEMs. The endpoint is called automatically by `pg_cron` on your configured schedule, but you can also trigger it manually from **Admin > Noise Jobs** or directly via the API.
+
+**Method:** `POST`  
+**Path:** `/api/noise/run`  
+**Auth:** Bearer token in the `Authorization` header (for `pg_cron` / automation) **or** session cookie with `manage_noise_logs` capability
+
+<Note>
+  Bearer token authentication is accepted on this endpoint only. All other ThreatLab API endpoints require a session cookie. See [Authentication](/api/authentication) for details.
+</Note>
+
+---
+
+## Request Body
+
+<ParamField body="job_id" type="string" required>
+  The UUID of the noise job to execute.
+</ParamField>
+
+<ParamField body="trigger" type="string" required>
+  The trigger source. Use `"schedule"` for `pg_cron`-initiated calls and `"manual"` for API or UI-initiated calls.
+</ParamField>
+
+<ParamField body="run_ids" type="object" required>
+  A map of SIEM name to pre-created run UUID. ThreatLab updates each entry with status and event counts after execution.
+
+  ```json
+  { "Splunk": "run-abc-123", "Elastic": "run-def-456" }
+  ```
+</ParamField>
+
+<ParamField body="archives" type="array" required>
+  Array of archive objects to dispatch. Each object specifies a position and storage path.
+
+  <Expandable title="archive object fields">
+    <ParamField body="position" type="number" required>
+      Zero-based position of the archive within the job's archive set. Used to order dispatch.
+    </ParamField>
+    <ParamField body="storage_path" type="string" required>
+      Path to the archive within the `noise-archives` storage bucket (for example, `noise-archives/job1/logs.zip`).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="targets" type="array" required>
+  Array of SIEM name strings to ship events to. Each target is processed independently — a failure on one SIEM does not abort delivery to others.
+</ParamField>
+
+<ParamField body="schedule" type="object" required>
+  The job's scheduling configuration. Used to compute `next_run_at` after execution.
+
+  <Expandable title="schedule object fields">
+    <ParamField body="kind" type="string" required>
+      Scheduling kind: `"interval"` for fixed-interval repeat or `"cron"` for a cron expression schedule.
+    </ParamField>
+    <ParamField body="interval_seconds" type="number" required>
+      Repeat interval in seconds. Required when `kind` is `"interval"`.
+    </ParamField>
+    <ParamField body="jitter_seconds" type="number">
+      Optional random jitter in seconds added to the next run time to avoid thundering herd issues.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+---
+
+## Execution Flow
+
+<Steps>
+  <Step title="Download archives">
+    ThreatLab downloads all archives in the `archives` array in parallel from the `noise-archives` storage bucket.
+  </Step>
+  <Step title="Extract and rebase">
+    LEEF events are extracted from each archive and timestamps are rebased using the same logic as `/api/sessions/start`.
+  </Step>
+  <Step title="Ship to each SIEM">
+    Events are shipped to every SIEM in `targets` independently. A per-SIEM failure does not abort delivery to other SIEMs.
+  </Step>
+  <Step title="Update run rows">
+    ThreatLab updates the run records identified by `run_ids` with final status, event counts, and any error details.
+  </Step>
+  <Step title="Compute next run">
+    `next_run_at` is computed from the `schedule` configuration and written back to the job record.
+  </Step>
+</Steps>
+
+---
+
+## Example
+
+<CodeGroup>
+
+```bash Request
+curl -X POST https://threatlab.your-org.com/api/noise/run \
+  -H 'Authorization: Bearer your-dispatch-token' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "job_id": "550e8400-e29b-41d4-a716-446655440000",
+    "trigger": "manual",
+    "run_ids": {"Splunk": "run-abc"},
+    "archives": [{"position": 0, "storage_path": "noise-archives/job1/logs.zip"}],
+    "targets": ["Splunk"],
+    "schedule": {"kind": "interval", "interval_seconds": 300, "jitter_seconds": 15}
+  }'
+```
+
+```json Response
+{
+  "ok": true
+}
+```
+
+</CodeGroup>

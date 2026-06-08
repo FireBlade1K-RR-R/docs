@@ -1,0 +1,80 @@
+---
+title: "Configure ThreatLab for Your Organization's SOC Team"
+sidebarTitle: "Configuration"
+description: "Set up SIEM destinations, noise log jobs, and user roles to tailor ThreatLab for your security team's training workflow and analyst onboarding experience."
+---
+
+ThreatLab's configuration lives in the **Admin** section of the sidebar. From there, administrators control the SIEM destinations that receive exercise logs and noise traffic, the roles that govern what each analyst can do, the scheduled noise log jobs that keep your SIEM populated with baseline events, and the learning path settings that shape the onboarding experience for new analysts. This page covers each of those areas in the order you are likely to configure them.
+
+## SIEM Destinations
+
+Navigate to **Admin > Resources** to manage the SIEM destinations that ThreatLab ships log archives and noise traffic to. Click **Add Destination** and provide a name, a driver, and the credentials for your target system.
+
+ThreatLab supports three drivers:
+
+<Tabs>
+  <Tab title="Splunk HEC">
+    Connect to a Splunk HTTP Event Collector endpoint. Provide the HEC URL and your token. Choose **LEEF** or **ECS** as the payload format for events shipped to this destination.
+  </Tab>
+  <Tab title="Syslog TCP">
+    Ship events over a persistent TCP connection using RFC 3164 or RFC 5424 framing. In addition to the host and port, syslog TCP destinations expose the following optional envelope fields:
+
+    - **Header mode** — controls how the syslog header is constructed
+    - **Header format** — RFC 3164 or RFC 5424 timestamp and hostname format
+    - **Source identity** — the hostname or device identity written into the syslog header
+    - **PRI value** — a numeric priority between 0 and 191 (facility × 8 + severity)
+    - **App name** — the program name field in the syslog header
+
+    Choose **LEEF** or **ECS** as the payload format.
+  </Tab>
+  <Tab title="Elasticsearch">
+    Send events to an Elasticsearch cluster using the bulk ingest API. Provide the cluster URL, credentials, and the target index. Choose **LEEF** or **ECS** as the payload format.
+  </Tab>
+</Tabs>
+
+Each destination can be set as the default target for exercise log delivery and noise dispatch independently, allowing you to route training traffic to a dedicated index or collector while keeping production data separate.
+
+## User Roles
+
+Navigate to **Admin > Roles** to manage the roles available in your ThreatLab instance. Roles come in two kinds:
+
+<Accordion title="Permission roles">
+  Permission roles carry one or more **capability bundles** that determine what a user can do. When a user holds multiple permission roles, their effective capability set is the union of all capabilities granted by those roles. The built-in `admin` and `analyst` roles are system roles and cannot be deleted, but you can create additional permission roles to express custom access tiers — for example, a role that grants exercise authoring without full admin access.
+</Accordion>
+
+<Accordion title="Title roles">
+  Title roles are cosmetic labels such as "SOC Lead" or "Instructor". They are displayed on a user's profile and in collaborative views, but they grant no capabilities and have no effect on authorization decisions.
+</Accordion>
+
+For a full list of available capabilities and how to assign roles to users, see [Roles](/admin/roles).
+
+## Noise Log Jobs
+
+Navigate to **Admin > Resources > Noise Jobs** to create and manage scheduled noise log dispatches. Noise jobs ship background LEEF events to a SIEM destination on a recurring schedule, giving analysts a realistic stream of baseline traffic to work against during training.
+
+When creating a job, configure the dispatch schedule using one of two formats:
+
+<Tabs>
+  <Tab title="Interval">
+    Enter a number of seconds between dispatches. The value must be between **60** (one minute) and **86400** (24 hours).
+  </Tab>
+  <Tab title="Cron expression">
+    Enter a standard five-field cron expression (minute, hour, day-of-month, month, day-of-week) for finer scheduling control — for example, `0 8 * * 1-5` to dispatch every weekday at 08:00.
+  </Tab>
+</Tabs>
+
+Each job is linked to a SIEM destination and a noise log template. Jobs can be enabled or disabled individually without deleting them. For guidance on authoring noise log templates, see [Noise Logs](/guides/noise-logs).
+
+## Learning Path Curation
+
+Navigate to **Admin > Learning Paths** to manage the visibility and promotion of learning paths. Two special flags control how paths are surfaced to analysts:
+
+<Accordion title="Curated paths">
+  Marking a path as **curated** features it prominently on the ThreatLab dashboard, making it easy for analysts to discover recommended content. This requires the `curate_paths` capability.
+</Accordion>
+
+<Accordion title="Onboarding paths">
+  Marking a path as **onboarding** causes ThreatLab to suggest it automatically to analysts who have not yet completed any exercises. Use this to guide new team members toward a structured first experience. This also requires the `curate_paths` capability.
+</Accordion>
+
+Only one path should be marked as the active onboarding path at a time to avoid presenting new analysts with conflicting recommendations.
