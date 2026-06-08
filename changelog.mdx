@@ -1,0 +1,36 @@
+---
+title: "Changelog"
+sidebarTitle: "Changelog"
+description: "Product updates and release notes for ThreatLab."
+mode: "center"
+---
+
+<Update label="June 8, 2026" tags={["launch"]}>
+
+## ThreatLab is live
+
+Welcome to the first ThreatLab release. This week we shipped the operator console for SOC training — from exercise authoring through analyst investigations to platform monitoring.
+
+### New features
+
+- **Exercise authoring and catalog** — Create realistic investigation scenarios with ordered steps, expected artifacts, MITRE ATT&CK tagging, and section-aware LEEF or ECS log archives. Upload archives as `.zip`, `.tar.gz`, `.tgz`, paste plain text, or stream over live TCP intake. See [Exercises](/concepts/exercises) and [Authoring exercises](/guides/authoring-exercises).
+- **Learning paths** — Sequence exercises into guided curricula with position-based unlock logic, per-analyst progress tracking, and dedicated onboarding flows. Inactive exercises are skipped automatically so analysts are never blocked. See [Learning paths](/concepts/learning-paths).
+- **Analyst workspace** — Launch exercises, submit step artifacts, and track completion streaks and leaderboard points from a single interface. Get going in five steps with the [Quickstart](/quickstart).
+- **SIEM integrations** — Ship exercise logs directly to your SIEM via Splunk HEC, syslog TCP (RFC 3164 / RFC 5424) for QRadar and others, or the Elasticsearch Bulk API. See [SIEM integrations](/concepts/siem-integrations).
+- **Noise log dispatcher** — Schedule recurring background LEEF jobs to keep your SIEM populated with realistic baseline traffic so exercise events don't stick out. See [Noise logs](/guides/noise-logs).
+- **Encrypted direct messages** — One-to-one messaging with AES-256-GCM encryption at rest, real-time delivery, and unread badges. Even administrators cannot read DM contents. See [Direct messages](/guides/direct-messages).
+- **Live platform status** — Icinga 2 host and service health is surfaced on the dashboard and a full status page, streamed in real time over SSE. See [Platform status](/guides/platform-status).
+- **Entra ID SSO** — Sign in with email and password or with your organization's Microsoft Entra ID. See the [Quickstart](/quickstart).
+- **Role-based access control** — Capability-driven roles let administrators grant exactly the permissions each user needs. See [Roles and capabilities](/concepts/roles-capabilities) and [Managing roles](/admin/roles).
+
+### Administration
+
+- **User management** — Invite users, assign roles, and manage org membership from the admin console. See [User management](/admin/user-management).
+- **SIEM resources** — Configure and test Splunk, syslog, and Elasticsearch destinations in one place. See [SIEM resources](/admin/siem-resources).
+- **Bootstrapping** — Stand up a new instance with the documented [Bootstrapping](/admin/bootstrapping) flow.
+
+### Public API
+
+The first version of the ThreatLab API is available. Endpoints include session start and wipe, noise job runs, platform status SSE, and health checks. See the [API overview](/api/overview) and [authentication](/api/authentication) to get started.
+
+</Update>
