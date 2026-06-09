@@ -7,6 +7,25 @@ mode: "center"
 
 <Update label="June 9, 2026" tags={["feature"]}>
 
+## Draft autosave for exercise authoring
+
+Exercises now save as you work. Draft is a real working state — start with just a title, leave the editor, and come back later to keep building.
+
+### New features
+
+- **Server-backed autosave** — The cmdbar shows live status (waiting, unsaved, saving, saved, paused, error) so you always know whether your changes are persisted. Drafts only require a title to save.
+- **Draft vs publish validation** — Drafts skip the heavier checks so you can iterate quickly. LEEF/ECS archive readiness and step-deadlock checks run at publish, and any validation errors scroll into view and focus the offending field. See [Draft vs publish validation](/guides/authoring-exercises#draft-vs-publish-validation).
+
+### Updates
+
+- **What drafts skip** — Saving a draft does not upload archives, finalize live TCP intake, or provision SIEM indexes. Those steps run when you publish. See [Draft autosave](/guides/authoring-exercises#draft-autosave).
+- **Create exercise permission** — The **Create exercise** action is gated on the `manage_exercises` capability. See [Authoring exercises](/guides/authoring-exercises).
+- **Lifecycle clarifications** — The exercise [Draft and Active states](/concepts/exercises) now reflect autosave behaviour and link directly to the relevant authoring sections.
+
+</Update>
+
+<Update label="June 9, 2026" tags={["feature"]}>
+
 ## Per-archive index routing for noise jobs
 
 Noise log archives can now be shipped to their own SIEM indexes, so different traffic types stay separated inside the same destination.
