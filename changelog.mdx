@@ -7,6 +7,23 @@ mode: "center"
 
 <Update label="June 9, 2026" tags={["feature"]}>
 
+## QRadar API management for syslog TCP destinations
+
+Syslog TCP destinations can now call the QRadar REST API to provision log sources and close offenses tied to wiped sessions — no more manual setup in the QRadar console for each new destination.
+
+### New features
+
+- **Optional QRadar API management** — On any `syslog_tcp` destination, administrators can now provide a QRadar API host and token and toggle **Provision log source** and **Close offenses** independently. Event delivery still uses syslog/LEEF; the API token only authorizes management calls. See [QRadar API management](/admin/siem-resources#adding-a-siem-destination).
+- **Configurable log source type, protocol, and event collector** — Defaults to `Universal LEEF` and `Syslog`, with an optional event collector ID for multi-collector deployments (leave blank to auto-select when QRadar has exactly one). See the [field reference](/admin/siem-resources#adding-a-siem-destination).
+
+### Updates
+
+- **SIEM integrations reference** — The [SIEM integrations](/concepts/siem-integrations#qradar-api-management) concept page now points administrators to the new fields and clarifies that switching a destination away from `syslog_tcp` clears these settings.
+
+</Update>
+
+<Update label="June 9, 2026" tags={["feature"]}>
+
 ## Staged section release for exercise log shipping
 
 Exercise sections can now ship to the SIEM in stages during a live attempt — hold later evidence back until analysts have made real progress, instead of dropping every log at exercise start.
