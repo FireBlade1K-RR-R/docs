@@ -51,19 +51,45 @@ When your destination uses the `syslog_tcp` driver, your administrator can confi
 
 ## Archive Resolution Order
 
-At exercise start, ThreatLab resolves which archive to ship using the following priority order:
+At exercise start, ThreatLab resolves which archive to ship based on whether the exercise has section rows.
+
+### Sectioned exercises (authoritative)
+
+If the exercise defines any sections, per-section archives are **authoritative** for the requested payload format. Every section must carry a matching archive in the format your SIEM destination expects (LEEF or ECS).
+
+- If any section is missing an archive in the requested format, shipping fails with a clear error that names the SIEM destination and the sections that are missing the format.
+- ThreatLab will **not** silently fall back to a legacy per-exercise archive or to legacy exercise columns when section rows are present. A partial section set, or a section set that does not cover the requested format, always fails fast.
+
+This applies to both active runs and staged exercises. Staged runs additionally validate against the full set of enabled SIEM destinations, so a staged exercise that targets both LEEF and ECS destinations must have section archives in both formats.
+
+### Legacy exercises (no section rows)
+
+If the exercise has no section rows at all, ThreatLab falls back to the legacy resolution order:
 
 <Steps>
-  <Step title="Section archives (exercise_section_archives)">
-    ThreatLab first looks for per-section archives tagged with the requested payload format (LEEF or ECS). If section archives exist for the format, **all sections must have a matching archive** — ThreatLab refuses to ship a partial set.
-  </Step>
-  <Step title="Legacy per-exercise archive (exercise_archives)">
-    If no section archives are found, ThreatLab falls back to a single archive attached to the exercise record as a whole.
+  <Step title="Legacy per-exercise archive">
+    A single archive attached to the exercise record as a whole, in the requested payload format.
   </Step>
   <Step title="Legacy exercise columns">
-    If neither of the above exists, ThreatLab reads archive metadata directly from the legacy columns on the exercise row itself.
+    Archive metadata read directly from the legacy columns on the exercise row itself.
   </Step>
 </Steps>
+
+If neither legacy source has an archive in the requested format, shipping fails with an error that names the SIEM destination and the missing format.
+
+<Note>
+  Legacy fallback exists only to keep older, non-sectioned exercises working. Once an exercise has any section row, it is treated as sectioned and the legacy bundle is ignored — even if one is still attached.
+</Note>
+
+## Publish-Time Guardrail
+
+To prevent the resolution errors above from surfacing at exercise start, ThreatLab enforces a matching guardrail when an exercise is **saved or published** as a staged run:
+
+- ThreatLab reads every **enabled** SIEM destination and groups them by payload format.
+- For each format with at least one enabled destination, every section must have a matching archive.
+- If any section is missing an archive in a required format, the save or publish fails with an error that names the affected SIEM destinations and sections.
+
+The practical effect: a staged exercise cannot be saved with incomplete per-section archives. If you enable an ECS destination, every section needs an ECS archive; if you enable a LEEF destination, every section needs a LEEF archive. To unblock a save, either upload the missing section archives or disable the SIEM destinations that require the format you are not shipping.
 
 ## Wipe and Re-Fire
 
