@@ -60,6 +60,10 @@ When your destination uses the `syslog_tcp` driver, your administrator can confi
   A QRadar-compatible destination profile typically uses **RFC 5424** header format with full syslog metadata populated in the defaults. Ask your administrator to verify the QRadar destination is configured with `rfc5424` and matching source identity values.
 </Info>
 
+### QRadar API management
+
+For `syslog_tcp` destinations, administrators can optionally enable **QRadar API management** so ThreatLab calls the QRadar REST API to provision the log source and close offenses tied to wiped sessions. Event delivery still flows over syslog/LEEF — the API token only authorizes management actions. See [SIEM resources](/admin/siem-resources#adding-a-siem-destination) for the field reference.
+
 ## Shipping Models
 
 ThreatLab supports two shipping models for an exercise's archive sections:

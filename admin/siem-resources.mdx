@@ -61,6 +61,23 @@ Configuring SIEM destinations requires the `manage_exercises` capability, which 
       </Accordion>
     </AccordionGroup>
   </Step>
+  <Step title="Optional: configure QRadar API management">
+    For `syslog_tcp` destinations only, expand **QRadar API management** to let ThreatLab call the QRadar REST API for log source provisioning and offense cleanup. Event delivery still uses syslog/LEEF — these settings only authorize follow-up management calls.
+
+    | Field | Required | Notes |
+    |---|---|---|
+    | Provision log source | No | When enabled, ThreatLab can create or update the QRadar log source that receives this destination's syslog feed. |
+    | Close offenses | No | When enabled, ThreatLab can close offenses related to wiped sessions during cleanup. |
+    | API host | Conditional | QRadar console hostname (for example `qradar-console.example.com`). Required when either toggle above is on. |
+    | API token | Conditional | QRadar Authorized Service token. Required when either toggle is on. On edit, leave blank to keep the stored token. |
+    | Log source type | No | Defaults to `Universal LEEF`. Must match a log source type configured in QRadar. |
+    | Protocol | No | Defaults to `Syslog`. Must match a protocol name configured in QRadar. |
+    | Event collector ID | No | Positive integer. Leave blank to auto-select when QRadar has exactly one event collector. |
+
+    <Note>
+      QRadar API management is only available for the `syslog_tcp` driver. Switching a destination to another driver clears these settings.
+    </Note>
+  </Step>
   <Step title="Set the payload format">
     Choose the log format ThreatLab will ship to this destination:
     - **LEEF** — Default. Best for Splunk and syslog receivers.
