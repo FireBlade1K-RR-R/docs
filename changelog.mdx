@@ -7,6 +7,25 @@ mode: "center"
 
 <Update label="June 9, 2026" tags={["feature"]}>
 
+## Staged section release for exercise log shipping
+
+Exercise sections can now ship to the SIEM in stages during a live attempt — hold later evidence back until analysts have made real progress, instead of dropping every log at exercise start.
+
+### New features
+
+- **Staged section release** — Each archive section has an optional release block with a delay (in minutes), linked artifact gates, a gate mode (`all` or `any`), and a release condition: `delay_only`, `artifacts_only`, `delay_and_artifacts`, or `delay_or_artifacts`. Sections with no rules ship immediately, exactly like before. See [Staged section release](/guides/authoring-exercises#staged-section-release) and [Section Release Rules](/concepts/exercises#section-release-rules).
+- **Section shipment status panel** — When an exercise uses staged shipping, the exercise detail page shows a per-section panel with one of five states: `not_due`, `waiting_on_artifact`, `shipping`, `shipped`, or `failed`. Sections stuck on **Waiting on artifact** spell out exactly which expected artifacts are still missing. See [Section shipment status](/guides/running-exercises#section-shipment-status).
+- **Explicit reasons from Ship logs to SIEM** — The **Ship logs to SIEM** action now returns one of eight explicit per-section reasons (`shipped`, `partial`, `already_shipped`, `not_due`, `waiting_on_artifacts`, `shipping`, `cooldown_skipped`, `failed`) so analysts and authors can tell at a glance why a section did or did not ship. See the [reason table](/guides/running-exercises#section-shipment-status).
+
+### Updates
+
+- **Publish-time deadlock check** — Toggling an exercise to **Active** now analyses the section release plan and blocks publish in two situations: no section can release at start (the analyst would begin with no logs in their SIEM), or a section is gated by an artifact that almost certainly lives in its own logs. The timeline panel surfaces the specific issue and an **override** checkbox for intentional deadlocks; the override is persisted with the exercise. See [Publish-time deadlock check](/guides/authoring-exercises#publish-time-deadlock-check).
+- **Two documented shipping models** — Immediate vs. staged shipping are now first-class concepts in the SIEM integrations reference, including per-attempt shipment snapshots so each analyst's section state is tracked independently. See [Shipping models](/concepts/siem-integrations#shipping-models).
+
+</Update>
+
+<Update label="June 9, 2026" tags={["feature"]}>
+
 ## ECS support and format-aware archive validation
 
 ECS is now a first-class author-time archive format alongside LEEF, and publish-time validation knows exactly which format each enabled SIEM destination needs.
