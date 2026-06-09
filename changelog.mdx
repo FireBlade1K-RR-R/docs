@@ -5,6 +5,27 @@ description: "Product updates and release notes for ThreatLab."
 mode: "center"
 ---
 
+<Update label="June 9, 2026" tags={["feature"]}>
+
+## Per-archive index routing for noise jobs
+
+Noise log archives can now be shipped to their own SIEM indexes, so different traffic types stay separated inside the same destination.
+
+### New features
+
+- **Choose an index per archive** — When creating or editing a noise job, each archive can ship to the destination's default index, an existing index already known to ThreatLab, or a brand-new index (name limit **120 characters**). The Noise Jobs table summarises the routing choice for each job at a glance.
+- **Automatic provisioning on Splunk and Elasticsearch** — ThreatLab creates any required custom indexes on save. At run time, events are grouped per archive and shipped with the right routing.
+- **LEEF `threatlabIndex=` extension** — Syslog TCP destinations receive an extra `threatlabIndex=` field on every LEEF line so downstream collectors can route the event without changing the rest of the payload.
+
+### Updates
+
+- **Syslog TCP requires manual index setup** — ThreatLab cannot create indexes on syslog TCP targets. When a job references a custom index on a syslog TCP destination, the save toast surfaces a warning telling you exactly which index to create on the collector before the next run.
+- **Wipe propagation covers custom indexes** — With **Propagate on wipe** enabled, wiping a SIEM session also clears non-default custom indexes referenced by a job's archives on Splunk and Elasticsearch before the job re-fires, so training data stays in sync with the default index.
+
+See [Per-archive index routing](/guides/noise-logs#per-archive-index-routing) in the noise logs guide for the full walkthrough.
+
+</Update>
+
 <Update label="June 9, 2026" tags={["update"]}>
 
 ## Stricter SIEM shipping for sectioned exercises
