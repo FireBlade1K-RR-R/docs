@@ -7,8 +7,35 @@ description: "Create exercises with log archives, ordered steps, expected artifa
 Creating a ThreatLab exercise takes you from filling in scenario metadata all the way through uploading log archives, defining ordered investigation steps, and publishing the exercise for analysts to start. This guide walks through each stage of that process so you can build polished, realistic training scenarios from scratch.
 
 <Info>
-  You need the **manage\_exercises** capability to create and edit exercises. If you do not see **Exercises > Create exercise** in the sidebar, contact your administrator to have that capability granted to your role.
+  You need the **manage\_exercises** capability to create and edit exercises. The **Create exercise** action is gated to that capability — if it does not appear on the exercises list view, ask your administrator to grant it.
 </Info>
+
+## Draft autosave
+
+The create and edit forms autosave every change to the server as a draft. You do not need to click a save button while you work — once a title is set, ThreatLab debounces edits and persists exercise metadata, steps, and section shells in the background.
+
+What the autosave indicator means, shown in the command bar at the top of the form:
+
+| Status | Meaning |
+|---|---|
+| **waiting for title** | A title has not been entered yet. Autosave starts as soon as you type one. |
+| **unsaved changes** | The form is dirty and a save is queued. |
+| **saving** | A save is in flight to the server. |
+| **saved HH:MM** | The latest changes are persisted. The timestamp is the server-confirmed save time. |
+| **paused while publish is selected** | You have toggled **Active** on. Autosave pauses so it cannot overwrite a strict publish. |
+| Error message | The last autosave failed. The form keeps your edits and retries on the next change. |
+
+Draft autosave intentionally skips the heavy parts of the publish pipeline:
+
+- Archive uploads are **not** processed — pasted text, file uploads, and direct files stay client-side until you publish.
+- Live TCP intake is **not** finalized for the draft.
+- SIEM indexes are **not** provisioned for new sections.
+
+Draft saves only require a **title**. Description, steps, archives, and section indexes can all be empty or incomplete and the draft will still persist. This lets you start an exercise, leave the page, and come back without losing your in-progress work.
+
+<Note>
+  Autosave is only available while the exercise is a draft. Once you toggle **Active** on, autosave pauses and any further changes must go through the strict publish path described below.
+</Note>
 
 ## Creating an exercise
 
@@ -57,9 +84,37 @@ Creating a ThreatLab exercise takes you from filling in scenario metadata all th
     Steps appear in order on the analyst's exercise workspace. You can drag to reorder them before publishing.
   </Step>
   <Step title="Publish the exercise">
-    When your metadata, archives, and steps are complete, toggle the exercise to **Active**. Active exercises are visible in the exercise catalogue and can be started by analysts immediately. Leave the exercise inactive while it is still a draft.
+    When your metadata, archives, and steps are complete, toggle the exercise to **Active** and save. Publishing runs the full strict validation pipeline (see [Draft vs publish validation](#draft-vs-publish-validation)) — archive uploads are processed, live TCP intakes are finalized, and SIEM indexes are provisioned. Active exercises are visible in the exercise catalogue and can be started by analysts immediately. Leave the exercise inactive while it is still a draft.
   </Step>
 </Steps>
+
+## Draft vs publish validation
+
+ThreatLab applies two different validation levels depending on whether you are autosaving a draft or toggling **Active** on.
+
+<Tabs>
+  <Tab title="Draft (autosave)">
+    Only the bare minimum needed to persist the working state:
+
+    - **Title** is required and capped at 120 characters.
+    - **Description**, when present, is capped at 2,000 characters.
+    - **Difficulty** must be one of the supported tiers.
+    - **Duration** must be a positive integer; **points** must be a non-negative integer.
+    - **MITRE ATT&CK tags**, when present, must match the `Tnnnn` or `Tnnnn.nnn` pattern.
+    - **Steps** and **sections** can be empty, partial, or in any order. Archive bytes are not inspected.
+  </Tab>
+  <Tab title="Publish (Active)">
+    Toggling **Active** on runs the full strict pipeline in addition to the draft rules:
+
+    - **Description**, **steps**, **section shells**, and **archive data** must all be complete.
+    - Every archive is validated against the [archive rules below](#archive-validation-rules).
+    - **LEEF and ECS readiness** checks run so a section advertising both payload formats actually carries both. Mismatched sets are rejected before publish.
+    - **Deadlock checks** run on live TCP intakes and SIEM index provisioning so a section cannot be published while another publish or finalize is still holding the same resources.
+    - Live TCP intakes are finalized and SIEM indexes are provisioned as part of the publish.
+  </Tab>
+</Tabs>
+
+If publish validation fails, ThreatLab surfaces the offending field inline. Clicking the error in the cmdbar or the issue list scrolls to and focuses the exact input — the section title, the step description, the archive picker — so you can fix it without hunting through the form.
 
 ## Archive validation rules
 
