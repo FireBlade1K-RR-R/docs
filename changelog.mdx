@@ -7,6 +7,20 @@ mode: "center"
 
 <Update label="June 9, 2026" tags={["feature"]}>
 
+## QRadar API management for syslog destinations
+
+QRadar destinations on the `syslog_tcp` driver can now use the QRadar REST API for two console-side tasks alongside event delivery.
+
+### New features
+
+- **Close offenses on completion** — When an analyst finishes an exercise attempt, ThreatLab closes the QRadar offenses linked to the exercise log source that were opened during the attempt window. Cleanup runs after scoring and never blocks completion; failures are recorded for administrators with `ok`, `partial`, or `failed` status. See [Close offenses on completion](/admin/siem-resources#close-offenses-on-completion).
+- **Provision log source** — Optional toggle that creates a per-exercise QRadar log source on first ship so events route to a dedicated log source. See [QRadar API management](/admin/siem-resources#qradar-api-management).
+- **API credentials on the destination form** — Add the QRadar console host, an authorized service token, log source type, protocol, and event collector ID directly on the `syslog_tcp` destination. Event delivery still flows over syslog/LEEF.
+
+</Update>
+
+<Update label="June 9, 2026" tags={["feature"]}>
+
 ## QRadar API management for syslog TCP destinations
 
 Syslog TCP destinations can now call the QRadar REST API to provision log sources and close offenses tied to wiped sessions — no more manual setup in the QRadar console for each new destination.
