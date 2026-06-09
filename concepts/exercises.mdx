@@ -35,7 +35,7 @@ Every exercise is made up of the following fields:
 </Accordion>
 
 <Accordion title="Archive Sections">
-  One or more log archive sections, each carrying LEEF and/or ECS payloads. ThreatLab selects the correct payload format at exercise start based on your SIEM destination.
+  One or more log archive sections, each carrying LEEF and/or ECS payloads. ThreatLab selects the correct payload format at exercise start based on your SIEM destination. Each section can optionally carry [staged release rules](#section-release-rules) so it ships to the SIEM mid-attempt instead of at start.
 </Accordion>
 
 <Accordion title="Investigation Steps">
@@ -70,6 +70,23 @@ A single exercise can carry both LEEF and ECS archives simultaneously, so it can
 If SyslogCanon is unavailable in any of these cases, ThreatLab blocks the publish with an error that names the affected SIEM and format.
 
 **Accepted upload formats** when authoring an exercise: `.zip`, `.tar.gz`, `.tgz`, or paste log text directly into the editor (ThreatLab packs pasted content into a ZIP automatically).
+
+## Section Release Rules
+
+By default, every archive section ships to the SIEM the instant an analyst starts the exercise. That **immediate shipping** model is still the default — you do not need to configure anything for it.
+
+Sections also support an optional **staged release** model so authors can hold individual sections back until specific conditions are met. Each section can declare:
+
+- A **release delay** — minutes after the attempt starts before the section becomes eligible.
+- One or more **artifact gates** — expected artifacts that must be submitted before the section becomes eligible.
+- A **release condition** that combines them: `delay_only`, `artifacts_only`, `delay_and_artifacts`, or `delay_or_artifacts`.
+- An **artifact gate mode** of `all` or `any` when more than one gate is linked.
+
+A section with no delay and no gates always ships immediately, exactly like classic exercises. ThreatLab evaluates the release rules continuously during an attempt and ships each section to the configured SIEM destination as soon as it becomes eligible — the analyst sees per-section status updates on the exercise detail page.
+
+At publish time, ThreatLab runs a **release deadlock check** that blocks an exercise from going Active if no section can release at start, or if a section is gated by an artifact that almost certainly lives in its own logs. Authors can confirm and override the block when the deadlock is intentional.
+
+See [Authoring exercises](/guides/authoring-exercises) for how to configure these rules and [Running exercises](/guides/running-exercises) for how analysts experience them.
 
 ## Exercise Lifecycle States
 
