@@ -7,6 +7,26 @@ mode: "center"
 
 <Update label="June 9, 2026" tags={["feature"]}>
 
+## ECS support and format-aware archive validation
+
+ECS is now a first-class author-time archive format alongside LEEF, and publish-time validation knows exactly which format each enabled SIEM destination needs.
+
+### New features
+
+- **ECS as a fully supported format** — Author exercises with ECS-formatted archives directly. ThreatLab detects ECS as JSON or NDJSON containing `@timestamp` plus at least one ECS-like field (`event.*`, `host.*`, `source.*`, `destination.*`, `log.*`, `process.*`, `user.*`, or a non-empty `message`). See [Archive formats](/concepts/exercises#archive-formats).
+- **Per-row format badges in the section editor** — Every archive row in the section editor now shows a **LEEF**, **ECS**, or **syslog/unknown** badge, and a source-aware notice spells out what your enabled SIEM destinations require. See [Authoring exercises](/guides/authoring-exercises#creating-an-exercise).
+- **SyslogCanon LEEF↔ECS pairing** — When **Convert to LEEF** is enabled, SyslogCanon produces both the LEEF and matching ECS payloads in the same publish, so a single section can ship to LEEF and ECS destinations without double-authoring. See the **Convert to LEEF** step in [Authoring exercises](/guides/authoring-exercises#creating-an-exercise).
+
+### Updates
+
+- **Format-aware validation** — Unknown raw archives are no longer silently labelled as LEEF. Rows are classified as LEEF, ECS, or unknown, and unknown content fails closed with an actionable error telling you what to fix. See [Format-aware validation](/guides/authoring-exercises#format-aware-validation).
+- **Publish-time readiness check** — Toggling an exercise to **Active** now derives the required formats from your enabled destinations and assigned SIEM, then verifies every section has a complete archive in each required format. Errors name the SIEM destination and the format (LEEF or ECS) that is missing. See [Publishing as Active](/guides/authoring-exercises#publishing-as-active) and [Publish-time readiness](/concepts/siem-integrations#publish-time-readiness).
+- **Clearer rules for when SyslogCanon is required** — SyslogCanon now kicks in when **Convert to LEEF** is on, when an ECS row needs to reach a LEEF destination (Splunk HEC, syslog TCP), when a LEEF row needs to reach an ECS destination (Elasticsearch Bulk), or when any row is unknown. If SyslogCanon can't produce the missing side, publish is blocked with a per-SIEM, per-format error. See [When SyslogCanon is required](/concepts/siem-integrations#when-syslogcanon-is-required).
+
+</Update>
+
+<Update label="June 9, 2026" tags={["feature"]}>
+
 ## Draft autosave for exercise authoring
 
 Exercises now save as you work. Draft is a real working state — start with just a title, leave the editor, and come back later to keep building.
