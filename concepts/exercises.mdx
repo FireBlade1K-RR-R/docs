@@ -65,10 +65,10 @@ An exercise moves through four states from authoring to analyst completion:
 
 <Steps>
   <Step title="Draft">
-    The exercise has been created but not yet published. It is invisible to analysts and does not appear in any learning path progress calculations.
+    A working state for authors. The exercise is invisible to analysts and does not appear in learning path progress. Drafts are server-backed and **autosaved** — once a title is set, metadata, steps, and section shells persist automatically without uploading archives, finalizing live TCP intakes, or provisioning SIEM indexes. Description, steps, and archives can be incomplete while in draft. See [Author exercises](/guides/authoring-exercises#draft-autosave) for the autosave UX and [Draft vs publish validation](/guides/authoring-exercises#draft-vs-publish-validation) for which checks fire at each stage.
   </Step>
   <Step title="Active">
-    The exercise is published and visible to analysts. It appears in the exercise catalog and counts toward learning path progress.
+    The exercise is published and visible to analysts. It appears in the exercise catalog and counts toward learning path progress. Toggling **Active** on runs the full strict validation pipeline — archive validation, LEEF/ECS readiness checks, deadlock checks, live TCP finalization, and SIEM index provisioning — before the exercise goes live.
   </Step>
   <Step title="In Progress">
     An analyst has started the exercise but has not yet submitted all required artifacts. Partial progress is auto-saved after every submission.
