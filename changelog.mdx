@@ -7,6 +7,24 @@ mode: "center"
 
 <Update label="June 9, 2026" tags={["feature"]}>
 
+## QRadar log source provisioning for exercises
+
+Syslog TCP destinations that target QRadar can now provision a dedicated per-exercise log source through the QRadar REST API, so every event you investigate is tied back to a single exercise run.
+
+### New features
+
+- **Per-exercise QRadar log sources** — When **Enable log source provisioning** is on, ThreatLab creates or reuses a QRadar log source with a deterministic `threatlab-{exercise}-{siem}` identifier at exercise start, and tags every outgoing syslog frame with that identity. See [QRadar log source provisioning](/concepts/siem-integrations#qradar-log-source-provisioning).
+- **QRadar API destination fields** — `syslog_tcp` destinations gained QRadar API host, token, event collector ID, log source type, and log source protocol fields, plus toggles for log source provisioning and offense cleanup. See [Adding a SIEM destination](/admin/siem-resources#adding-a-siem-destination).
+- **`syslogSourceIdentity` on session start** — `POST /api/sessions/start` accepts an optional `syslogSourceIdentity` that forces synthesized syslog headers with that value as the source host. See [POST /api/sessions/start](/api/sessions-start#request-body).
+
+### Updates
+
+- **Provisioning failures abort start** — If the QRadar API is unreachable or the configured event collector cannot be resolved, exercise start now fails fast with a clear error instead of shipping events to an unprovisioned log source.
+
+</Update>
+
+<Update label="June 9, 2026" tags={["feature"]}>
+
 ## Staged section release for exercise log shipping
 
 Exercise sections can now ship to the SIEM in stages during a live attempt — hold later evidence back until analysts have made real progress, instead of dropping every log at exercise start.
