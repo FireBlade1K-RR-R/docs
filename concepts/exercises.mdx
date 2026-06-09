@@ -55,7 +55,19 @@ ThreatLab supports two log payload formats so exercises can target any supported
   </Card>
 </CardGroup>
 
-A single exercise can carry both LEEF and ECS archives simultaneously, so it can be assigned to analysts on different SIEM stacks.
+Both LEEF and ECS are **fully supported author-time formats**. When you paste or upload raw logs, ThreatLab detects each row independently:
+
+- **LEEF** is recognised by its `LEEF:<version>|vendor|product|...` header.
+- **ECS** is recognised when the row is JSON or NDJSON with an `@timestamp` field and at least one ECS-like field (`event.*`, `host.*`, `source.*`, `destination.*`, `log.*`, `process.*`, `user.*`, or a non-empty `message`).
+
+A single exercise can carry both LEEF and ECS archives simultaneously, so it can be assigned to analysts on different SIEM stacks. When ECS or unknown rows are mixed with LEEF, or when the destination needs a format that doesn't match the raw input, ThreatLab uses **SyslogCanon** to canonicalise the rows and produce the missing side. SyslogCanon is required whenever:
+
+- You enable **Convert to LEEF** on a section.
+- A row is detected as ECS but a LEEF destination (e.g. `splunk_hec`, `syslog_tcp`) is enabled.
+- A row is detected as LEEF but an ECS destination (e.g. `elastic_bulk`) is enabled.
+- Any row is detected as unknown.
+
+If SyslogCanon is unavailable in any of these cases, ThreatLab blocks the publish with an error that names the affected SIEM and format.
 
 **Accepted upload formats** when authoring an exercise: `.zip`, `.tar.gz`, `.tgz`, or paste log text directly into the editor (ThreatLab packs pasted content into a ZIP automatically).
 

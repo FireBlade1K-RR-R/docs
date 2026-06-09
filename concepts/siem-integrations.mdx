@@ -31,6 +31,17 @@ The driver you use determines which log payload format ThreatLab ships:
 
 An exercise can carry **both LEEF and ECS archives simultaneously**. ThreatLab selects the correct format at exercise start based on the `payload_format` configured on your SIEM destination — so the same exercise works across different analyst environments without any changes.
 
+### When SyslogCanon is required
+
+ThreatLab uses the **SyslogCanon** sidecar to canonicalise raw logs and produce LEEF and ECS archive pairs. Authors need SyslogCanon at publish time whenever the raw input does not already cover the format an enabled destination needs:
+
+- **Convert to LEEF is enabled.** SyslogCanon parses every row and emits both LEEF and (where required) ECS.
+- **Raw rows are detected as ECS** but a LEEF destination is enabled (e.g. `splunk_hec`, `syslog_tcp`). SyslogCanon generates the LEEF side.
+- **Raw rows are detected as LEEF** but an ECS destination is enabled (e.g. `elastic_bulk`). SyslogCanon generates the ECS side.
+- **Any row is unknown.** SyslogCanon canonicalises it — ThreatLab no longer silently labels unknown raw archives as LEEF.
+
+When the publish-time readiness check determines that SyslogCanon is required for a given format and it is either unavailable or fails to dual-parse, the publish is blocked. The error names both the affected SIEM destination and the format (LEEF or ECS) so authors know which side to fix.
+
 ## Syslog TCP Envelope Settings
 
 When your destination uses the `syslog_tcp` driver, your administrator can configure the syslog envelope on a per-destination basis. These settings control how ThreatLab frames each event before it goes on the wire:
@@ -48,6 +59,12 @@ When your destination uses the `syslog_tcp` driver, your administrator can confi
 <Info>
   A QRadar-compatible destination profile typically uses **RFC 5424** header format with full syslog metadata populated in the defaults. Ask your administrator to verify the QRadar destination is configured with `rfc5424` and matching source identity values.
 </Info>
+
+## Publish-Time Readiness
+
+Setting an exercise to **Active** triggers a publish-time readiness check that mirrors the runtime resolution rules. The check derives required formats from **enabled** SIEM destinations (`driver` + `payload_format` + `enabled`) and the assigned SIEM, and verifies every section has a matching archive in every required format. If SyslogCanon is needed to generate a format and is unavailable or cannot dual-parse, publish is blocked per-format and per-section, with errors that name the affected SIEM and format.
+
+This means an exercise can only go live if it is actually shippable to every destination it targets — there is no path that produces a partially-formatted exercise at publish time.
 
 ## Archive Resolution Order
 
