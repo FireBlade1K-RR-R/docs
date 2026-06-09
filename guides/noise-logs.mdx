@@ -31,6 +31,9 @@ Before creating your first noise job, confirm the following:
   <Step title="Upload log archives">
     Upload between **1 and 10** log archives in `.zip`, `.tar.gz`, or `.tgz` format. The archives must contain `.txt` or `.log` files. ThreatLab applies the same per-file and total size limits as exercise archives.
   </Step>
+  <Step title="Choose a SIEM index per archive">
+    For each archive, pick the SIEM index that should receive its events. See [Per-archive index routing](#per-archive-index-routing) below for details.
+  </Step>
   <Step title="Select SIEM targets">
     Choose between **1 and 20** SIEM destinations from the list of configured targets. Each selected SIEM receives an independent shipment — a failure on one target does not block delivery to the others.
   </Step>
@@ -50,6 +53,62 @@ Before creating your first noise job, confirm the following:
     Toggle the job to **Enabled** and click **Save**. ThreatLab computes the first `next_run_at` value immediately. The job will fire at the next scheduled time without any further action required.
   </Step>
 </Steps>
+
+## Per-archive index routing
+
+Each archive in a noise job can be routed to its own SIEM index, so you can keep different traffic types (for example, Windows event logs versus firewall logs) separated inside the same SIEM destination. Routing is configured per archive when you create or edit a job and is persisted alongside the archive.
+
+### When to use it
+
+Reach for per-archive index routing when you want to:
+
+- Keep different log sources (endpoint, network, identity) in separate indexes so analysts can scope searches.
+- Mirror your production index layout in training so dashboards and saved searches behave the same.
+- Ship a single archive into a brand-new index without touching your destination's default.
+
+If you don't care about separation, leave every archive on the destination's default index — that matches the original noise job behaviour.
+
+### Choosing an index for an archive
+
+In the **New Job** or **Edit Job** dialog, each archive row exposes an index control with three options:
+
+| Option | What it does |
+| --- | --- |
+| **Default** | Ships events to the destination's configured default index. |
+| **Existing index** | Picks an index already known to ThreatLab — the catalog includes indexes used by exercises and by other noise archives. |
+| **New index** | Creates a brand-new index. Enter the name in the adjacent field (maximum **120 characters**). The name is validated and saved on the archive. |
+
+The Noise Jobs table summarises the index choice for each job so you can review routing at a glance without re-opening the dialog.
+
+When you save the job, ThreatLab attempts to provision any required indexes on the selected SIEM targets. For Splunk and Elasticsearch destinations this happens automatically. The create or update toast surfaces any warnings — most commonly when a target needs manual setup (see the syslog TCP note below).
+
+### How events get routed at run time
+
+When the job fires, the orchestrator groups events **by archive index** and ships each group with the right routing:
+
+- **Splunk and Elasticsearch** — events are written to the per-archive index. Default-routed archives keep using the destination default.
+- **Syslog TCP (LEEF)** — each LEEF line gets an extra `threatlabIndex=` extension so downstream collectors can route the event. Other LEEF fields are untouched.
+- **ECS payloads** — grouped per archive index in the same way as LEEF before being indexed.
+
+For example, a LEEF line bound for a custom `windows_endpoint` index arrives over syslog TCP looking like:
+
+```text
+LEEF:2.0|ThreatLab|NoiseLogs|1.0|login_success|src=10.0.0.5	usrName=alice	threatlabIndex=windows_endpoint
+```
+
+### Syslog TCP requires manual index setup
+
+ThreatLab cannot create indexes on syslog TCP destinations automatically. When a job references a custom index on a syslog TCP target, the save toast will include a warning such as:
+
+```text
+created my-job; <siem>: create index "windows_endpoint" manually (syslog tcp destination).
+```
+
+Create the index (or routing rule) on the downstream collector before the next scheduled run, otherwise events tagged with that index may be dropped or routed to a fallback index.
+
+### Wipe and re-fire behaviour
+
+When **Propagate on wipe** is enabled, wiping a SIEM session also wipes any non-default custom indexes referenced by the job's archives on Splunk and Elasticsearch before the job re-fires. This keeps custom training indexes in sync with the default index rather than leaving stale events behind.
 
 ## How execution works
 
