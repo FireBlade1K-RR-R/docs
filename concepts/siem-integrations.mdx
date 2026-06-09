@@ -49,6 +49,21 @@ When your destination uses the `syslog_tcp` driver, your administrator can confi
   A QRadar-compatible destination profile typically uses **RFC 5424** header format with full syslog metadata populated in the defaults. Ask your administrator to verify the QRadar destination is configured with `rfc5424` and matching source identity values.
 </Info>
 
+## Shipping Models
+
+ThreatLab supports two shipping models for an exercise's archive sections:
+
+<CardGroup cols={2}>
+  <Card title="Immediate" icon="bolt">
+    The default. Every section ships to your SIEM destination the moment the analyst clicks **Start**. Best for classic single-archive scenarios.
+  </Card>
+  <Card title="Staged" icon="clock">
+    Sections ship individually as their release rules are satisfied — a per-section delay, an artifact gate, or both. Best for multi-phase scenarios where you want later evidence to appear only after earlier steps are solved.
+  </Card>
+</CardGroup>
+
+Staged shipping is configured per section on the exercise itself — see [Section release rules](/concepts/exercises#section-release-rules) for the model and [Authoring exercises](/guides/authoring-exercises#staged-section-release) for the editor controls. ThreatLab snapshots each shipment per attempt, so a section that already shipped during one attempt is not re-shipped if the analyst hits **Ship logs to SIEM** again — the platform returns an explicit `already_shipped`, `not_due`, `waiting_on_artifacts`, or similar reason instead.
+
 ## Archive Resolution Order
 
 At exercise start, ThreatLab resolves which archive to ship using the following priority order:

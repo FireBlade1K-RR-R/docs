@@ -56,10 +56,56 @@ Creating a ThreatLab exercise takes you from filling in scenario metadata all th
 
     Steps appear in order on the analyst's exercise workspace. You can drag to reorder them before publishing.
   </Step>
+  <Step title="Configure per-section release rules (optional)">
+    By default, every archive section ships to the SIEM the moment the analyst starts the exercise. If you want to release sections **in stages** — for example, holding later evidence until the analyst has solved earlier steps — open the **Release** block on each section and configure the rules described in [Staged section release](#staged-section-release).
+  </Step>
   <Step title="Publish the exercise">
-    When your metadata, archives, and steps are complete, toggle the exercise to **Active**. Active exercises are visible in the exercise catalogue and can be started by analysts immediately. Leave the exercise inactive while it is still a draft.
+    When your metadata, archives, and steps are complete, toggle the exercise to **Active**. On save, ThreatLab runs a **release deadlock check** before the exercise goes live — see [Publish-time deadlock check](#publish-time-deadlock-check) for what it validates and how to override it when intentional.
+
+    Active exercises are visible in the exercise catalogue and can be started by analysts immediately. Leave the exercise inactive while it is still a draft.
   </Step>
 </Steps>
+
+## Staged section release
+
+Every archive section has an optional set of release rules that control **when its log archive ships to the SIEM during a live attempt**. Sections with no rules configured ship at exercise start, exactly like before — staged release is purely opt-in.
+
+Configure each section's release block with these controls:
+
+| Control | Purpose |
+|---|---|
+| **Release condition** | How the delay and artifact gates combine. One of `delay_only`, `artifacts_only`, `delay_and_artifacts`, `delay_or_artifacts`. |
+| **Delay minutes** | Minutes to wait after the attempt starts before this section becomes eligible to ship. Must be between `0` and the exercise duration. |
+| **Artifact gates** | One or more expected artifacts (from any investigation step) that must be submitted before this section becomes eligible. |
+| **Artifact gate mode** | When two or more gates are linked, choose **all linked** (every gate must be satisfied) or **any linked** (one gate is enough). |
+
+### Release conditions
+
+The release condition decides how the delay and the artifact gates combine for a single section:
+
+- **`delay_only`** — ships once the delay elapses. Linked artifacts are ignored.
+- **`artifacts_only`** — ships once the artifact gate is satisfied. The delay is ignored.
+- **`delay_and_artifacts`** — ships only when **both** the delay has elapsed **and** the artifact gate is satisfied. This is the default for new sections.
+- **`delay_or_artifacts`** — ships as soon as **either** the delay has elapsed **or** the artifact gate is satisfied. Useful when the gate should be a shortcut with a guaranteed fallback time.
+
+A section with no delay and no gates is always immediately releasable, regardless of the chosen condition.
+
+<Tip>
+  Link a section's gate to an artifact from an **earlier** step (or from a different section) so the analyst has a concrete reason to keep investigating before the next batch of evidence appears in their SIEM.
+</Tip>
+
+### Release timeline summary
+
+The editor shows a live **release timeline** panel above the section list summarising what each section will do at attempt start — `immediate`, `delayed`, `gated`, `delayed-gated`, or `blocked-risk`. Use it as a quick sanity check before publishing.
+
+## Publish-time deadlock check
+
+When you save an exercise as Active, ThreatLab analyses the section release plan and refuses to publish if it would deadlock the analyst. The analyzer raises a blocking issue in two situations:
+
+- **No initial releasable section** — every section is delayed or gated, so the analyst would start the exercise with **no logs in their SIEM** and no way to make progress.
+- **Likely self-gated section** — a section is gated by an artifact that almost certainly lives in that same section's logs, so the gate can never be satisfied without the logs already being there.
+
+When the analyzer blocks publish, the release timeline panel shows the specific issue and an **override** checkbox. Tick the override only when the deadlock is intentional — for example, you have an out-of-band trigger that will satisfy the gate, or you explicitly want analysts to wait before any logs arrive. The override is persisted with the exercise so reviewers can see it was a conscious choice.
 
 ## Archive validation rules
 

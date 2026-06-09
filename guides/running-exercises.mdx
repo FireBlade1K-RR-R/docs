@@ -33,6 +33,41 @@ Navigate to **Exercises** in the left sidebar to browse the full catalogue. Each
   Starting an exercise ships real log data to your organisation's SIEM. Check with your administrator before starting exercises in a production environment — use a dedicated training index or destination to avoid mixing exercise data with live operational data.
 </Note>
 
+## Section shipment status
+
+Some exercises stage their log archives in **multiple sections** that ship at different points during the attempt — for example, releasing later evidence only after you have submitted earlier artifacts. When an exercise uses staged shipping, the exercise detail page shows a **section shipment** panel that tells you, per section, exactly what is happening with its logs.
+
+Each section row displays one of five states:
+
+| State | What it means |
+|---|---|
+| **Not due** | The section is waiting on a release delay. Its logs will ship automatically once the delay elapses. |
+| **Waiting on artifact** | The section is gated on one or more expected artifacts. The panel lists which artifacts still need to be submitted before the logs ship. |
+| **Shipping** | The section is eligible and ThreatLab is currently sending the archive to your SIEM. |
+| **Shipped** | The section's logs are in your SIEM and ready to investigate. |
+| **Failed** | An upload attempt failed. ThreatLab will retry automatically — no action is needed from you. |
+
+The panel only shows learner-safe details: it never exposes internal error stacks or operational data. If your role has the operational-error capability, the failure reason is shown verbatim; otherwise you only see that ThreatLab is retrying.
+
+### Manually pushing logs
+
+If you click **Ship logs to SIEM** during an attempt, ThreatLab returns one of the following explicit reasons so you know exactly what happened:
+
+| Reason | Meaning |
+|---|---|
+| `shipped` | At least one section was just shipped to your SIEM. |
+| `partial` | Some sections shipped, but others were already shipped earlier. |
+| `already_shipped` | Every section that is eligible right now has already been shipped. |
+| `not_due` | No section is currently due — they are all still inside their release delay. |
+| `waiting_on_artifacts` | Sections are eligible only once you submit the gated artifacts. Keep investigating. |
+| `shipping` | A previous shipment is already in flight; ThreatLab will not duplicate it. |
+| `cooldown_skipped` | The destination SIEM is inside its dedupe cooldown window; no new upload was needed. |
+| `failed` | A shipment attempt failed. ThreatLab will retry; check the section shipment panel for details. |
+
+<Tip>
+  If a section is stuck on **Waiting on artifact**, open the section row in the shipment panel — it lists exactly which expected artifacts are missing so you know which steps to keep working on.
+</Tip>
+
 ## Working through steps
 
 Steps appear in order on your exercise workspace. Each step includes an investigation prompt that describes what you are looking for, and an artifact submission field where you enter your answer. Submissions are checked **case-insensitively** — capitalisation differences will not cause a correct answer to be rejected. Your progress auto-saves after each accepted submission, so closing the page does not lose your work.
