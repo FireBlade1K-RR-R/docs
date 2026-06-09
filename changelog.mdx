@@ -5,6 +5,26 @@ description: "Product updates and release notes for ThreatLab."
 mode: "center"
 ---
 
+<Update label="June 9, 2026" tags={["update"]}>
+
+## Stricter SIEM shipping for sectioned exercises
+
+Section archives are now the single source of truth for sectioned exercises — no silent fallback to legacy bundles.
+
+### Updates
+
+- **Section archives are authoritative** — When an exercise has section rows, every section must carry an archive in the payload format your SIEM destination expects (LEEF or ECS). ThreatLab no longer falls back to a legacy per-exercise archive or legacy exercise columns when section rows are present.
+- **Clearer shipping errors** — If any section is missing an archive in the requested format, shipping fails fast with an error that names the SIEM destination and the affected sections.
+- **Legacy fallback scoped to non-sectioned exercises** — The legacy resolution order still applies to exercises with no section rows, so older content keeps working unchanged.
+
+### Bug fixes
+
+- **Publish-time guardrail** — Saving or publishing a staged exercise now validates section archives against every enabled SIEM destination's payload format. Incomplete archive sets are caught at save time instead of failing later at exercise start.
+
+See [SIEM integrations](/concepts/siem-integrations) for the full resolution order and guardrail details.
+
+</Update>
+
 <Update label="June 8, 2026" tags={["launch"]}>
 
 ## ThreatLab is live
