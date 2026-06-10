@@ -5,6 +5,32 @@ description: "Product updates and release notes for ThreatLab."
 mode: "center"
 ---
 
+<Update label="June 10, 2026" tags={["weekly"]}>
+
+## This week in ThreatLab
+
+A quick roundup of everything that shipped in ThreatLab's first full week. Detailed entries follow below.
+
+### New features
+
+- **Staged section release** — Hold later evidence back until analysts make real progress, with delay timers, artifact gates, and a per-section shipment status panel. See [Staged section release](/guides/authoring-exercises#staged-section-release).
+- **ECS as a first-class archive format** — Author exercises with ECS alongside LEEF, with per-row format badges and automatic LEEF↔ECS pairing via SyslogCanon. See [Archive formats](/concepts/exercises#archive-formats).
+- **Draft autosave for exercise authoring** — Exercises now save as you work, with live status in the cmdbar. Start with just a title and come back later. See [Draft autosave](/guides/authoring-exercises#draft-autosave).
+- **Per-archive index routing for noise jobs** — Send each noise archive to its own SIEM index, with automatic provisioning on Splunk and Elasticsearch. See [Per-archive index routing](/guides/noise-logs#per-archive-index-routing).
+- **QRadar REST API management** — `syslog_tcp` destinations can now provision per-exercise QRadar log sources and close offenses on completion. See [QRadar API management](/admin/siem-resources#qradar-api-management).
+
+### Updates
+
+- **Format-aware publish validation** — Publishing an exercise now verifies every section has a complete archive in each format your enabled destinations require, with per-SIEM, per-format errors. See [Publish-time readiness](/concepts/siem-integrations#publish-time-readiness).
+- **Stricter SIEM shipping for sectioned exercises** — Section archives are the single source of truth; no silent fallback to legacy bundles. See [SIEM integrations](/concepts/siem-integrations).
+- **Publish-time deadlock check** — Toggling to **Active** blocks publishes where no section can release at start, or a section is gated by an artifact that lives in its own logs, with an explicit override. See [Publish-time deadlock check](/guides/authoring-exercises#publish-time-deadlock-check).
+
+### Bug fixes
+
+- **Incomplete archive sets caught at save time** — Saving or publishing a staged exercise now validates section archives against every enabled SIEM destination's payload format up front, instead of failing later at exercise start.
+
+</Update>
+
 <Update label="June 9, 2026" tags={["feature"]}>
 
 ## QRadar API management for syslog destinations
