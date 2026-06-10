@@ -26,6 +26,12 @@ Send a `POST` request to `/api/sessions/start` to ship a signed exercise archive
   Override the destination index name. This field is ignored for `syslog_tcp` destinations and applies only to index-aware drivers like `splunk_hec` and `elastic_bulk`.
 </ParamField>
 
+<ParamField body="syslogSourceIdentity" type="string">
+  Override the syslog source host for this shipment. Only applies to `syslog_tcp` destinations — when set, ThreatLab forces synthesized syslog headers with this value as the source host, regardless of the destination's default **Source identity** or **Header mode**. Ignored on `splunk_hec` and `elastic_bulk` destinations.
+
+  Typically set by the orchestrator to the per-exercise identifier produced by [QRadar log source provisioning](/concepts/siem-integrations#qradar-log-source-provisioning) so every event lands on the right QRadar log source.
+</ParamField>
+
 ---
 
 ## Shipping Behavior
