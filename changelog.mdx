@@ -7,6 +7,24 @@ mode: "center"
 
 <Update label="June 10, 2026" tags={["feature"]}>
 
+## Per-section QRadar log sources gate exercise start, redo, and shipping
+
+Per-section QRadar log sources are now enforced at runtime, not just at publish. Exercise start, redo, and **Ship logs to SIEM** are blocked until every section has a ready log source, so analysts can't begin investigating events that would land under the wrong identity.
+
+### New features
+
+- **Runtime readiness gate** — When **Provision log source** is enabled, ThreatLab checks every section's QRadar log source before each start, redo, and push. A section is ready only when it has a `provisioned` status, a QRadar log source ID, and no pending QRadar deploy. If any section is not ready, the operation fails fast with an error that names each blocking section and the reason — missing, failed, or deploy required. See [Per-section log sources](/concepts/siem-integrations#per-section-log-sources).
+- **Offense cleanup dedup across sections** — Session wipe and redo now close offenses tied to every provisioned section log source for the exercise — plus any legacy exercise-level log source — and deduplicate offenses linked to more than one section's log source so the cleanup summary stays clean. See [Offense cleanup across sections](/concepts/siem-integrations#offense-cleanup-across-sections).
+
+### Updates
+
+- **Legacy fallback preserved** — Exercises with no per-section QRadar rows continue to use the legacy exercise-level log source, so older content keeps working unchanged.
+- **SIEM errors troubleshooting** — A new entry covers the `QRadar section log sources are not ready` error and walks through the fix for missing, failed, and deploy-required cases. See [SIEM errors](/troubleshooting/siem-errors).
+
+</Update>
+
+<Update label="June 10, 2026" tags={["feature"]}>
+
 ## QRadar log-source preflight gates exercise publish
 
 Publishing an exercise now provisions a QRadar log source for each section before the exercise is marked **Active**, so staged section release lines up with QRadar deploy state instead of failing silently after analysts start.
