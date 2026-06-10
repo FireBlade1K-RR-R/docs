@@ -97,7 +97,7 @@ Draft saves only require a **title**. Description, steps, archives, and section 
     By default, every archive section ships to the SIEM the moment the analyst starts the exercise. If you want to release sections **in stages** — for example, holding later evidence until the analyst has solved earlier steps — open the **Release** block on each section and configure the rules described in [Staged section release](#staged-section-release).
   </Step>
   <Step title="Publish the exercise">
-    When your metadata, archives, and steps are complete, toggle the exercise to **Active**. On save, ThreatLab runs a **release deadlock check** before the exercise goes live — see [Publish-time deadlock check](#publish-time-deadlock-check) for what it validates and how to override it when intentional.
+    When your metadata, archives, and steps are complete, toggle the exercise to **Active**. On save, ThreatLab runs a **release deadlock check** and a **QRadar log-source preflight** before the exercise goes live — see [Publish-time deadlock check](#publish-time-deadlock-check) and [QRadar log-source preflight](#qradar-log-source-preflight) for what each validates and how to handle warnings.
 
     Active exercises are visible in the exercise catalogue and can be started by analysts immediately. Leave the exercise inactive while it is still a draft.
   </Step>
@@ -126,6 +126,7 @@ ThreatLab applies two different validation levels depending on whether you are a
     - **LEEF and ECS readiness** checks run so a section advertising both payload formats actually carries both. Mismatched sets are rejected before publish.
     - **Deadlock checks** run on live TCP intakes and SIEM index provisioning so a section cannot be published while another publish or finalize is still holding the same resources.
     - Live TCP intakes are finalized and SIEM indexes are provisioned as part of the publish.
+    - **QRadar log-source preflight** runs against every enabled `syslog_tcp` destination that has **Provision log source** turned on. If QRadar provisioning fails — or a successful provision still needs **Deploy Changes** in the QRadar console — the exercise stays in **Draft** with warnings shown inline. See [QRadar log-source preflight](#qradar-log-source-preflight).
   </Tab>
 </Tabs>
 
@@ -162,6 +163,21 @@ A section with no delay and no gates is always immediately releasable, regardles
 ### Release timeline summary
 
 The editor shows a live **release timeline** panel above the section list summarising what each section will do at attempt start — `immediate`, `delayed`, `gated`, `delayed-gated`, or `blocked-risk`. Use it as a quick sanity check before publishing.
+
+## QRadar log-source preflight
+
+If any of your enabled `syslog_tcp` destinations have **QRadar API management** with **Provision log source** turned on, publishing an exercise now runs a QRadar preflight before the exercise is marked **Active**. For each section in the exercise, ThreatLab ensures a matching QRadar log source exists in QRadar so that section's logs have somewhere to land the moment an analyst starts the exercise.
+
+The preflight **blocks activation** in two cases:
+
+- **Provisioning failed.** QRadar returned an error while ThreatLab tried to create or update a section log source. The destination, section, and underlying error message are surfaced in the form's warning list.
+- **QRadar requires deploy.** The log source was created or updated successfully but QRadar still needs an administrator to run **Deploy Changes** in the QRadar console before it will accept events. Deploy in QRadar, then publish the exercise again.
+
+When the preflight blocks activation, the rest of your save still goes through — metadata, steps, sections, archives, and SIEM index provisioning all persist — but the exercise stays in **Draft** state. The form flips the **Active** toggle back off and shows the QRadar warnings inline so you know what to fix. Save again once you have addressed each warning to publish for real.
+
+<Note>
+  The preflight only runs when at least one enabled `syslog_tcp` destination has **Provision log source** turned on. Deployments without QRadar API management are unaffected and publish exactly as before.
+</Note>
 
 ## Publish-time deadlock check
 
