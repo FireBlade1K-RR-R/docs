@@ -15,23 +15,61 @@ QRadar log source provisioning now runs per exercise section instead of once per
 
 - **One QRadar log source per section** — When **Provision log source** is enabled, ThreatLab creates a log source per section, keyed by exercise and section so log sources are never reused across exercises. Reruns are idempotent: already-provisioned sections return their existing log source. See [QRadar API management](/concepts/siem-integrations#qradar-api-management).
 - **Per-section success and failure** — Provisioning reports a result for each section and destination pair, so a single section failing on one destination does not block the rest. Sectionless exercises continue to provision a single log source per exercise.
+<Update label="June 10, 2026" tags={["weekly"]}>
+
+## This week in ThreatLab
+
+A quick roundup of everything that shipped in ThreatLab's first full week. Detailed entries follow below.
+
+### New features
+
+- **Staged section release** — Hold later evidence back until analysts make real progress, with delay timers, artifact gates, and a per-section shipment status panel. See [Staged section release](/guides/authoring-exercises#staged-section-release).
+- **ECS as a first-class archive format** — Author exercises with ECS alongside LEEF, with per-row format badges and automatic LEEF↔ECS pairing via SyslogCanon. See [Archive formats](/concepts/exercises#archive-formats).
+- **Draft autosave for exercise authoring** — Exercises now save as you work, with live status in the cmdbar. Start with just a title and come back later. See [Draft autosave](/guides/authoring-exercises#draft-autosave).
+- **Per-archive index routing for noise jobs** — Send each noise archive to its own SIEM index, with automatic provisioning on Splunk and Elasticsearch. See [Per-archive index routing](/guides/noise-logs#per-archive-index-routing).
+- **QRadar REST API management** — `syslog_tcp` destinations can now provision per-exercise QRadar log sources and close offenses on completion. See [QRadar API management](/admin/siem-resources#qradar-api-management).
+
+### Updates
+
+- **Format-aware publish validation** — Publishing an exercise now verifies every section has a complete archive in each format your enabled destinations require, with per-SIEM, per-format errors. See [Publish-time readiness](/concepts/siem-integrations#publish-time-readiness).
+- **Stricter SIEM shipping for sectioned exercises** — Section archives are the single source of truth; no silent fallback to legacy bundles. See [SIEM integrations](/concepts/siem-integrations).
+- **Publish-time deadlock check** — Toggling to **Active** blocks publishes where no section can release at start, or a section is gated by an artifact that lives in its own logs, with an explicit override. See [Publish-time deadlock check](/guides/authoring-exercises#publish-time-deadlock-check).
+
+### Bug fixes
+
+- **Incomplete archive sets caught at save time** — Saving or publishing a staged exercise now validates section archives against every enabled SIEM destination's payload format up front, instead of failing later at exercise start.
 
 </Update>
 
 <Update label="June 9, 2026" tags={["feature"]}>
 
-## QRadar API management for syslog TCP destinations
+## QRadar API management for syslog destinations
 
-Syslog TCP destinations can now call the QRadar REST API to provision log sources and close offenses tied to wiped sessions — no more manual setup in the QRadar console for each new destination.
+QRadar destinations on the `syslog_tcp` driver can now use the QRadar REST API for two console-side tasks alongside event delivery.
 
 ### New features
 
-- **Optional QRadar API management** — On any `syslog_tcp` destination, administrators can now provide a QRadar API host and token and toggle **Provision log source** and **Close offenses** independently. Event delivery still uses syslog/LEEF; the API token only authorizes management calls. See [QRadar API management](/admin/siem-resources#adding-a-siem-destination).
-- **Configurable log source type, protocol, and event collector** — Defaults to `Universal LEEF` and `Syslog`, with an optional event collector ID for multi-collector deployments (leave blank to auto-select when QRadar has exactly one). See the [field reference](/admin/siem-resources#adding-a-siem-destination).
+- **Close offenses on completion** — When an analyst finishes an exercise attempt, ThreatLab closes the QRadar offenses linked to the exercise log source that were opened during the attempt window. Cleanup runs after scoring and never blocks completion; failures are recorded for administrators with `ok`, `partial`, or `failed` status. See [Close offenses on completion](/admin/siem-resources#close-offenses-on-completion).
+- **Provision log source** — Optional toggle that creates a per-exercise QRadar log source on first ship so events route to a dedicated log source. See [QRadar API management](/admin/siem-resources#qradar-api-management).
+- **API credentials on the destination form** — Add the QRadar console host, an authorized service token, log source type, protocol, and event collector ID directly on the `syslog_tcp` destination. Event delivery still flows over syslog/LEEF.
+
+</Update>
+
+<Update label="June 9, 2026" tags={["feature"]}>
+
+## QRadar log source provisioning for exercises
+
+Syslog TCP destinations that target QRadar can now provision a dedicated per-exercise log source through the QRadar REST API, so every event you investigate is tied back to a single exercise run.
+
+### New features
+
+- **Per-exercise QRadar log sources** — When **Enable log source provisioning** is on, ThreatLab creates or reuses a QRadar log source with a deterministic `threatlab-{exercise}-{siem}` identifier at exercise start, and tags every outgoing syslog frame with that identity. See [QRadar log source provisioning](/concepts/siem-integrations#qradar-log-source-provisioning).
+- **QRadar API destination fields** — `syslog_tcp` destinations gained QRadar API host, token, event collector ID, log source type, and log source protocol fields, plus toggles for log source provisioning and offense cleanup. See [Adding a SIEM destination](/admin/siem-resources#adding-a-siem-destination).
+- **`syslogSourceIdentity` on session start** — `POST /api/sessions/start` accepts an optional `syslogSourceIdentity` that forces synthesized syslog headers with that value as the source host. See [POST /api/sessions/start](/api/sessions-start#request-body).
 
 ### Updates
 
-- **SIEM integrations reference** — The [SIEM integrations](/concepts/siem-integrations#qradar-api-management) concept page now points administrators to the new fields and clarifies that switching a destination away from `syslog_tcp` clears these settings.
+- **Provisioning failures abort start** — If the QRadar API is unreachable or the configured event collector cannot be resolved, exercise start now fails fast with a clear error instead of shipping events to an unprovisioned log source.
 
 </Update>
 
