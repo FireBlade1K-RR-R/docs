@@ -49,6 +49,15 @@ Configuring SIEM destinations requires the `manage_exercises` capability, which 
         | App name | No | Syslog APP-NAME field |
         | Process ID | No | Syslog PROCID field |
         | Message ID | No | Syslog MSGID field |
+        | QRadar API host | No | QRadar console hostname or IP. Required when log source provisioning is enabled. |
+        | QRadar API token | No | Bearer token for the QRadar REST API. Required when log source provisioning is enabled. |
+        | QRadar event collector ID | No | Numeric ID of the event collector that receives the syslog feed. ThreatLab resolves a default collector if left blank. |
+        | QRadar log source type | No | Display name of the QRadar log source type. Defaults to `Universal LEEF`. |
+        | QRadar log source protocol | No | Display name of the QRadar protocol type. Defaults to `Syslog`. |
+        | Enable log source provisioning | No | When on, ThreatLab calls the QRadar REST API at exercise start to create or reuse a per-exercise log source. See [QRadar log source provisioning](/concepts/siem-integrations#qradar-log-source-provisioning). |
+        | Enable offense cleanup | No | Reserved for closing QRadar offenses tied to an exercise's log source identity. |
+
+        See [QRadar API management](#qradar-api-management) below to enable optional REST API features on a `syslog_tcp` destination that targets QRadar.
       </Accordion>
       <Accordion title="elastic_bulk — Elasticsearch Bulk API">
         | Field | Required | Notes |
@@ -95,9 +104,60 @@ Configuring SIEM destinations requires the `manage_exercises` capability, which 
   SIEM name is case-sensitive. It must match exactly in exercise start requests and noise job target lists.
 </Note>
 
+## QRadar API management
+
+For QRadar destinations on the `syslog_tcp` driver, you can give ThreatLab REST API credentials so it can automate console tasks alongside event delivery. Event delivery still flows over syslog/LEEF — the API is only used for the management actions you opt into.
+
+Expand the **qradar api management** section on a `syslog_tcp` destination to configure it.
+
+| Field | Required | Notes |
+|---|---|---|
+| Provision log source | No | Toggle. When on, ThreatLab creates a per-exercise QRadar log source on first ship so events route to the right log source automatically. |
+| Close offenses | No | Toggle. When on, ThreatLab closes the QRadar offenses opened by an exercise attempt after the analyst completes it. |
+| API host | Yes (if either toggle is on) | QRadar console hostname (for example, `qradar-console.example.com`). |
+| API token | Yes (if either toggle is on) | QRadar authorized service token. Leave blank when editing to keep the existing value. |
+| Log source type | No | QRadar log source type name. Defaults to `Universal LEEF`. |
+| Protocol | No | QRadar log source protocol name. Defaults to `Syslog`. |
+| Event collector ID | No | Numeric event collector ID. Leave blank to auto-select when the console has exactly one collector. |
+
+<Info>
+  Both toggles are scoped strictly to the destination's log source and the current exercise attempt window. ThreatLab will not touch offenses or log sources that belong to other destinations or attempts.
+</Info>
+
+### Close offenses on completion
+
+When **Close offenses** is enabled, ThreatLab closes any **OPEN** QRadar offenses linked to the exercise log source that were opened during the analyst's attempt window. Cleanup runs after the attempt is scored and is **non-blocking**: if QRadar is unreachable or the API rejects a request, the analyst still gets a successful completion, and the failure is recorded for administrators to review.
+
+Every cleanup attempt is recorded with the matched, closed, and failed offense IDs and one of three outcomes:
+
+| Status | Meaning |
+|---|---|
+| `ok` | Every matched offense was closed (or no offenses were open). |
+| `partial` | Some offenses closed; at least one failed. The last error message is stored alongside the failed IDs. |
+| `failed` | Cleanup could not run (for example, missing credentials, no provisioned log source) or every close call failed. |
+
+Cleanup is skipped — without an audit row — when the destination is disabled, uses a different driver, has the toggle off, or has no API credentials, and when the exercise has no provisioned QRadar log source for that destination yet.
+
 ## Enabling and Disabling Destinations
 
 You can toggle a destination on or off from its detail page at any time. Disabled destinations are ignored at exercise start — no logs are shipped to them, and they do not block other destinations from receiving events.
+
+## QRadar Log Source Provisioning
+
+When a `syslog_tcp` destination targets QRadar and **Enable log source provisioning** is on, ThreatLab calls the QRadar REST API at exercise start to ensure a dedicated log source exists for that exercise. This lets you tie every event in QRadar back to a single exercise run.
+
+To use provisioning:
+
+1. Set the **QRadar API host** and **QRadar API token** on the destination.
+2. Optionally pin the **QRadar event collector ID**, **log source type**, and **log source protocol**. ThreatLab uses sensible defaults (`Universal LEEF` over `Syslog`) and resolves the first available event collector if you leave them blank.
+3. Toggle **Enable log source provisioning** on.
+4. Make sure the QRadar API token has permission to read event collectors and log source types and to create log sources.
+
+ThreatLab uses a deterministic identifier of `threatlab-{exercise}-{siem}` so the same exercise always reuses the same QRadar log source. Provisioning failures abort the exercise start so analysts never see a partially configured run — see [QRadar log source provisioning](/concepts/siem-integrations#qradar-log-source-provisioning) for the end-to-end behavior.
+
+<Warning>
+  Provisioning requires the QRadar API host and token to be reachable from the ThreatLab orchestrator. A misconfigured collector ID or an expired token blocks the session start with a clear error.
+</Warning>
 
 ## Wipe Behavior on Session Reset
 

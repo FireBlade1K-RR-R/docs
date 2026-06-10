@@ -60,9 +60,46 @@ When your destination uses the `syslog_tcp` driver, your administrator can confi
   A QRadar-compatible destination profile typically uses **RFC 5424** header format with full syslog metadata populated in the defaults. Ask your administrator to verify the QRadar destination is configured with `rfc5424` and matching source identity values.
 </Info>
 
-### QRadar API management
+## QRadar API Management
 
-For `syslog_tcp` destinations, administrators can optionally enable **QRadar API management** so ThreatLab calls the QRadar REST API to provision the log source and close offenses tied to wiped sessions. Event delivery still flows over syslog/LEEF — the API token only authorizes management actions. See [SIEM resources](/admin/siem-resources#adding-a-siem-destination) for the field reference.
+For `syslog_tcp` destinations, administrators can optionally enable **QRadar API management** so ThreatLab calls the QRadar REST API to provision log sources and close offenses tied to wiped sessions. Event delivery still flows over syslog/LEEF — the API token only authorizes management actions. See [SIEM resources](/admin/siem-resources#adding-a-siem-destination) for the field reference.
+
+When **Provision log source** is enabled, ThreatLab creates one QRadar log source per exercise section, scoped to every enabled QRadar `syslog_tcp` destination. Each log source is keyed by exercise and section, so the same section never reuses a log source from a different exercise, and rerunning provisioning is idempotent — an already-provisioned section returns its existing log source rather than creating a duplicate. Sectionless exercises continue to provision a single log source per exercise. Provisioning runs per section: if one section's destination fails (for example, because the QRadar API is unreachable), the other sections still return their own success or failure result.
+QRadar destinations on the `syslog_tcp` driver can optionally use the QRadar REST API for two console-side tasks. Both are opt-in and configured per destination by your administrator — see [QRadar API management](/admin/siem-resources#qradar-api-management) for setup details.
+
+- **Provision log source.** ThreatLab creates a per-exercise log source on the QRadar console the first time it ships logs, so events route to a dedicated log source instead of a shared one.
+- **Close offenses on completion.** When an analyst finishes an exercise attempt, ThreatLab closes the QRadar offenses that were opened against the exercise log source during the attempt window. Cleanup runs after scoring and never blocks completion — if QRadar is unreachable, the analyst still gets credit and the failure is recorded for administrators.
+
+## QRadar Log Source Provisioning
+
+When your `syslog_tcp` destination targets QRadar, your administrator can let ThreatLab manage a dedicated QRadar log source per exercise so every event you investigate is tied back to a single exercise run. Provisioning is configured on the destination — see [QRadar log source provisioning](/admin/siem-resources#qradar-log-source-provisioning) for the admin steps.
+
+### How it works
+
+When **Enable log source provisioning** is on for the destination, ThreatLab runs the following flow at exercise start:
+
+<Steps>
+  <Step title="Resolve a stable identifier">
+    ThreatLab derives a deterministic source identifier in the form `threatlab-{exercise}-{siem}`. The same exercise on the same destination always uses the same identifier.
+  </Step>
+  <Step title="Create or reuse the log source">
+    ThreatLab calls the QRadar REST API to either reuse an existing log source with that identifier or create a new one using the configured log source type (default `Universal LEEF`), protocol type (default `Syslog`), and event collector. A `409 Conflict` from QRadar is treated as a successful reuse.
+  </Step>
+  <Step title="Tag outgoing syslog traffic">
+    For the rest of the run, ThreatLab forces synthesized syslog headers with the deterministic identifier as the source host, regardless of the destination's default **Source identity**. Every event for that exercise lands on the same QRadar log source.
+  </Step>
+  <Step title="Persist the state">
+    The provisioning state (`pending`, `provisioned`, or `failed`), the QRadar log source ID, and whether QRadar requires a deploy are recorded so reruns of the same exercise reuse the same log source without re-calling the API.
+  </Step>
+</Steps>
+
+<Warning>
+  Provisioning is a hard prerequisite for shipping. If the QRadar API is unreachable, the token is invalid, or no event collector can be resolved, **exercise start fails** with a clear error and no logs are shipped. Disable provisioning on the destination if you want shipping to proceed without an API round trip.
+</Warning>
+
+### When provisioning is disabled
+
+If **Enable log source provisioning** is off, ThreatLab loads any previously stored source identity for the exercise and reuses it as the syslog source host. Destinations that have never been provisioned fall back to the default **Source identity** configured on the destination.
 
 When **Provision log source** is enabled, ThreatLab creates a dedicated QRadar log source for **each section** of an exercise (not just one per exercise) so staged section release can identify which logs belong to which step of the investigation. Provisioning happens at **publish time** — when an author toggles an exercise to **Active** — as a preflight gate:
 
