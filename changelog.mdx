@@ -5,6 +5,25 @@ description: "Product updates and release notes for ThreatLab."
 mode: "center"
 ---
 
+<Update label="June 10, 2026" tags={["feature"]}>
+
+## QRadar log-source preflight gates exercise publish
+
+Publishing an exercise now provisions a QRadar log source for each section before the exercise is marked **Active**, so staged section release lines up with QRadar deploy state instead of failing silently after analysts start.
+
+### New features
+
+- **Per-section QRadar log-source provisioning at publish** — When at least one enabled `syslog_tcp` destination has **Provision log source** turned on, toggling an exercise to **Active** runs a QRadar preflight that ensures a log source exists in QRadar for every section. See [QRadar log-source preflight](/guides/authoring-exercises#qradar-log-source-preflight).
+- **Publish blocked on QRadar deploy required** — If QRadar accepted the log source but still needs **Deploy Changes** to be run in the QRadar console, the exercise is saved as **Draft** with an inline warning naming the destination and section. Run **Deploy Changes** in QRadar, then publish again. Cached log sources with `requires_deploy` are re-checked live against QRadar, so no manual cache reset is needed.
+- **Publish blocked on provisioning errors** — If QRadar returns an error during provisioning, the exercise is saved as **Draft** and the underlying error is surfaced inline so authors can fix credentials, log source type, or protocol settings without leaving the form.
+
+### Updates
+
+- **Author publish flow** — The create and edit forms now route post-save based on the server-confirmed publish result rather than the client **Active** toggle. When QRadar preflight blocks activation, the edit form syncs its local active/draft state back from the server so the toggle accurately reflects what actually shipped.
+- **SIEM integrations reference** — The [QRadar API management](/concepts/siem-integrations#qradar-api-management) section now documents per-section log-source provisioning and the publish-time preflight behaviour.
+
+</Update>
+
 <Update label="June 9, 2026" tags={["feature"]}>
 
 ## QRadar API management for syslog TCP destinations

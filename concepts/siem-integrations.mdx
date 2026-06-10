@@ -64,6 +64,13 @@ When your destination uses the `syslog_tcp` driver, your administrator can confi
 
 For `syslog_tcp` destinations, administrators can optionally enable **QRadar API management** so ThreatLab calls the QRadar REST API to provision the log source and close offenses tied to wiped sessions. Event delivery still flows over syslog/LEEF — the API token only authorizes management actions. See [SIEM resources](/admin/siem-resources#adding-a-siem-destination) for the field reference.
 
+When **Provision log source** is enabled, ThreatLab creates a dedicated QRadar log source for **each section** of an exercise (not just one per exercise) so staged section release can identify which logs belong to which step of the investigation. Provisioning happens at **publish time** — when an author toggles an exercise to **Active** — as a preflight gate:
+
+- **Provisioning failed** or **QRadar requires deploy** — the exercise is saved but kept in **Draft**, and warnings name the destination, the section, and the reason. The author must resolve each warning (re-check QRadar credentials, or run **Deploy Changes** in the QRadar console) and publish again.
+- **Provisioning succeeded and QRadar is already deployed** — the exercise activates normally.
+
+Cached QRadar log sources that still have `requires_deploy` set are re-checked against the QRadar API before the preflight short-circuits, so an administrator running **Deploy Changes** in QRadar is enough to clear the gate on the next publish attempt — no manual cache reset is needed. See [QRadar log-source preflight](/guides/authoring-exercises#qradar-log-source-preflight) in the authoring guide for the author-facing flow.
+
 ## Shipping Models
 
 ThreatLab supports two shipping models for an exercise's archive sections:
