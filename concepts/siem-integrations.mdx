@@ -62,6 +62,9 @@ When your destination uses the `syslog_tcp` driver, your administrator can confi
 
 ## QRadar API Management
 
+For `syslog_tcp` destinations, administrators can optionally enable **QRadar API management** so ThreatLab calls the QRadar REST API to provision log sources and close offenses tied to wiped sessions. Event delivery still flows over syslog/LEEF — the API token only authorizes management actions. See [SIEM resources](/admin/siem-resources#adding-a-siem-destination) for the field reference.
+
+When **Provision log source** is enabled, ThreatLab creates one QRadar log source per exercise section, scoped to every enabled QRadar `syslog_tcp` destination. Each log source is keyed by exercise and section, so the same section never reuses a log source from a different exercise, and rerunning provisioning is idempotent — an already-provisioned section returns its existing log source rather than creating a duplicate. Sectionless exercises continue to provision a single log source per exercise. Provisioning runs per section: if one section's destination fails (for example, because the QRadar API is unreachable), the other sections still return their own success or failure result.
 QRadar destinations on the `syslog_tcp` driver can optionally use the QRadar REST API for two console-side tasks. Both are opt-in and configured per destination by your administrator — see [QRadar API management](/admin/siem-resources#qradar-api-management) for setup details.
 
 - **Provision log source.** ThreatLab creates a per-exercise log source on the QRadar console the first time it ships logs, so events route to a dedicated log source instead of a shared one.
