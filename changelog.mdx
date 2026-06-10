@@ -15,6 +15,9 @@ QRadar log source provisioning now runs per exercise section instead of once per
 
 - **One QRadar log source per section** — When **Provision log source** is enabled, ThreatLab creates a log source per section, keyed by exercise and section so log sources are never reused across exercises. Reruns are idempotent: already-provisioned sections return their existing log source. See [QRadar API management](/concepts/siem-integrations#qradar-api-management).
 - **Per-section success and failure** — Provisioning reports a result for each section and destination pair, so a single section failing on one destination does not block the rest. Sectionless exercises continue to provision a single log source per exercise.
+
+</Update>
+
 <Update label="June 10, 2026" tags={["weekly"]}>
 
 ## This week in ThreatLab
