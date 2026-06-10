@@ -108,6 +108,21 @@ When **Provision log source** is enabled, ThreatLab creates a dedicated QRadar l
 
 Cached QRadar log sources that still have `requires_deploy` set are re-checked against the QRadar API before the preflight short-circuits, so an administrator running **Deploy Changes** in QRadar is enough to clear the gate on the next publish attempt — no manual cache reset is needed. See [QRadar log-source preflight](/guides/authoring-exercises#qradar-log-source-preflight) in the authoring guide for the author-facing flow.
 
+#### Per-section log sources
+
+When **Provision log source** is enabled, ThreatLab provisions one QRadar log source per exercise section so each section's events arrive under a distinct syslog identity. At exercise start, redo, and **Ship logs to SIEM**, ThreatLab gates shipping on the readiness of every section's log source:
+
+- A section is **ready** when its log source has `provisioned` status, a QRadar log source ID, and does not require a QRadar deploy.
+- A section is **not ready** when its provisioning is missing, failed, or still pending a QRadar deploy.
+
+If any section is not ready, the operation fails fast with an error that names each blocking section and the reason — for example `section 2 (web-access): QRadar deploy required`. Trigger the QRadar deploy (or fix the upstream provisioning error) and start the exercise again.
+
+Exercises that have no per-section QRadar rows fall back to the legacy exercise-level log source, so older exercises that pre-date per-section provisioning continue to work without change.
+
+#### Offense cleanup across sections
+
+When **Close offenses** is enabled, session wipe and redo close every offense tied to any provisioned section log source for the exercise — plus any legacy exercise-level log source. Offenses linked to more than one section's log source are closed once and deduplicated in the cleanup summary.
+
 ## Shipping Models
 
 ThreatLab supports two shipping models for an exercise's archive sections:

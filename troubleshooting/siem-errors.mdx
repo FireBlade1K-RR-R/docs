@@ -58,6 +58,16 @@ SIEM errors in ThreatLab fall into three broad categories: connection failures, 
     **Fix:** Ensure the destination name in **Admin > Resources** and the target name used in the noise job are exactly the same string after trimming. Edit whichever side has the discrepancy to bring them into alignment.
   </Accordion>
 
+  <Accordion title="Exercise start, redo, or push fails: QRadar section log sources are not ready">
+    **Cause:** The destination has **Provision log source** enabled and at least one section is missing a QRadar log source, has failed provisioning, or is waiting on a QRadar deploy. ThreatLab blocks shipping until every section has a `provisioned` log source so events do not land under the wrong identity.
+
+    **Fix:**
+    - Read the error message — it lists each blocking section and the specific reason (missing, failed, or deploy required).
+    - For **deploy required**, trigger the pending QRadar deploy from the QRadar console, then retry once the deploy completes.
+    - For **failed**, open the exercise in the debugger to inspect the `qradarSources` diagnostics, fix the upstream cause (for example credentials, log source type, or event collector ID under **Admin > Resources**), and re-provision.
+    - For **missing**, ensure every section exists in the exercise and that provisioning has run for the destination.
+  </Accordion>
+
   <Accordion title="SIEM wipe response shows QRadar in skipped list">
     **Cause:** This is expected behaviour. QRadar destinations configured as syslog TCP connections have no programmatic wipe mechanism — ThreatLab cannot send a delete or clear command over a raw syslog stream.
 
